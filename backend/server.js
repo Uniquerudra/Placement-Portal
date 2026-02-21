@@ -18,6 +18,7 @@ app.use(cors({
     "http://localhost:3000",
     "http://localhost:3008",
     "https://frontend-eta-one-jjcarbsgbu.vercel.app",
+    "https://portal-1tpo-backend.onrender.com",
   ],
   credentials: true,
 }));
