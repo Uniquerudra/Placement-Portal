@@ -52,6 +52,11 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
 
+    // If user registered with Google Auth, they won't have a password
+    if (!user.password) {
+      return res.status(400).json({ message: "This account uses Google Sign-In. Please click 'Continue with Google'." });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 

@@ -2,6 +2,14 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
+const { v2: cloudinary } = require("cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const auth = require("../middleware/auth");
 const role = require("../middleware/role");
@@ -14,17 +22,13 @@ const {
 
 const router = express.Router();
 
-const uploadsDir = path.join(__dirname, "..", "uploads", "resumes");
-fs.mkdirSync(uploadsDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || "";
-    const safeExt = ext.slice(0, 10);
-    cb(null, `${Date.now()}-${req.user.id}${safeExt}`);
+// Using Cloudinary for storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "tpo_resumes",
+    resource_type: "auto",
+    public_id: (req, file) => `${Date.now()}-${req.user.id}`,
   },
 });
 
@@ -113,7 +117,7 @@ router.post(
 
       let resumeUrl = "";
       if (req.file) {
-        resumeUrl = `/uploads/resumes/${req.file.filename}`;
+        resumeUrl = req.file.path;
       }
 
       const application = await Application.create({

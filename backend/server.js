@@ -14,12 +14,19 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:3008",
-    "https://frontend-eta-one-jjcarbsgbu.vercel.app",
-    "https://portal-1tpo-backend.onrender.com",
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Allow any localhost origin or your production domains
+    if (origin.startsWith("http://localhost:") ||
+      origin === "https://frontend-eta-one-jjcarbsgbu.vercel.app" ||
+      origin === "https://portal-1tpo-backend.onrender.com") {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
 }));
 app.use(express.json());
