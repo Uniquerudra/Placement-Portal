@@ -14,21 +14,16 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    // Allow any localhost origin or your production domains
-    if (origin.startsWith("http://localhost:") ||
-      origin.endsWith(".vercel.app") ||
-      origin === "https://portal-1tpo-backend.onrender.com") {
-      return callback(null, true);
-    }
-
-    return callback(new Error("Not allowed by CORS"));
-  },
+  origin: true, // Allow all origins for debugging
   credentials: true,
 }));
+
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+  next();
+});
+
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
