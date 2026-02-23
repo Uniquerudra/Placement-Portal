@@ -56,7 +56,6 @@ export default function ResumeAnalyzer() {
       const res = await API.post("/drives/resume/analyze", form, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 

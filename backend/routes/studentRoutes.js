@@ -55,7 +55,15 @@ router.post(
   "/resume/analyze",
   auth,
   role(["student"]),
-  analyzeUpload.single("resume"),
+  (req, res, next) => {
+    analyzeUpload.single("resume")(req, res, (err) => {
+      if (err) {
+        console.error("Multer Analyze Error:", err);
+        return res.status(400).json({ message: "File upload failed: " + err.message });
+      }
+      next();
+    });
+  },
   async (req, res) => {
     try {
       if (!req.file?.buffer) {
@@ -96,11 +104,33 @@ router.post(
   "/apply/:driveId",
   auth,
   role(["student"]),
-  upload.single("resume"),
+  (req, res, next) => {
+    upload.single("resume")(req, res, (err) => {
+      if (err) {
+        console.error("Multer/Cloudinary Error during student apply:", err);
+        return res.status(err.http_code || 400).json({
+          message: "Resume upload failed. Please try again or check file size/type.",
+          error: err.message
+        });
+      }
+      next();
+    });
+  },
   async (req, res) => {
     try {
-      const { driveId } = req.params;
-      const { fullName, email, phone, branch, cgpa } = req.body;
+      const {
+        fullName,
+        email,
+        phone,
+        branch,
+        cgpa,
+        yearOfPassing,
+        skills,
+        linkedinUrl,
+        githubUrl,
+        portfolioUrl,
+        additionalInfo,
+      } = req.body;
 
       const drive = await Drive.findById(driveId);
       if (!drive) {
@@ -128,13 +158,19 @@ router.post(
         phone,
         branch,
         cgpa,
+        yearOfPassing,
+        skills,
+        linkedinUrl,
+        githubUrl,
+        portfolioUrl,
+        additionalInfo,
         resumeUrl,
       });
 
       res.status(201).json(application);
     } catch (err) {
       console.error("Error creating application:", err);
-      res.status(500).json({ message: "Failed to submit application" });
+      res.status(500).json({ message: "Failed to submit application: " + err.message });
     }
   }
 );
