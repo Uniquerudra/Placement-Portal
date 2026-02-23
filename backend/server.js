@@ -20,7 +20,7 @@ app.use(cors({
 
     // Allow any localhost origin or your production domains
     if (origin.startsWith("http://localhost:") ||
-      origin === "https://frontend-eta-one-jjcarbsgbu.vercel.app" ||
+      origin.endsWith(".vercel.app") ||
       origin === "https://portal-1tpo-backend.onrender.com") {
       return callback(null, true);
     }
