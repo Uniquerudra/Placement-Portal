@@ -40,6 +40,12 @@ app.use("/api/student", studentRoutes);
 
 app.get("/", (req, res) => res.send("API is running..."));
 
+// Global Error Handler (so you get JSON instead of an HTML error page)
+app.use((err, req, res, next) => {
+  console.error("Global Error:", err);
+  res.status(500).json({ message: err.message || "An unexpected error occurred on the server" });
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 connectDB().then(() => {
