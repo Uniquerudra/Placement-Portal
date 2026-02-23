@@ -108,7 +108,7 @@ const LandingPage = () => {
       </section>
 
       <footer>
-        <p>© 2026 TPO Portal | Designed for  College Placement Excellence by Rudra </p>
+        <p>© 2026 TPO Portal for AKGEC College | Designed for Placement Excellence By Rudra Pal</p>
       </footer>
 
     </div>
