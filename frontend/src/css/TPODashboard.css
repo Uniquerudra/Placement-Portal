@@ -1,0 +1,57 @@
+.tpo-container {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background: #f0f4f8;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+h1 {
+  color: #1d3557;
+}
+
+h3 {
+  color: #457b9d;
+  margin-bottom: 20px;
+}
+
+.applications-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.applications-table th, .applications-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.applications-table th {
+  background-color: #1d3557;
+  color: #fff;
+}
+
+.applications-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+button {
+  margin: 0 5px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:first-child {
+  background-color: #2a9d8f;
+  color: #fff;
+}
+
+button:last-child {
+  background-color: #e63946;
+  color: #fff;
+}

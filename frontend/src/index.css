@@ -1,0 +1,47 @@
+/* frontend/src/index.css */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+:root {
+  --bg0: #f4f6fb;
+  --text: #0f172a;
+  --muted: #64748b;
+  --card: rgba(255, 255, 255, 0.92);
+  --border: rgba(15, 23, 42, 0.1);
+  --shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+  --primary: #4f46e5;
+  --primary2: #6366f1;
+  --ring: rgba(99, 102, 241, 0.35);
+  --danger: #dc2626;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, #dbeafe 0, transparent 55%),
+    radial-gradient(circle at bottom right, #fee2e2 0, transparent 55%),
+    var(--bg0);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
