@@ -1,16 +1,21 @@
 // frontend/src/pages/admin/AdminDashboard.js
 // frontend/src/pages/admin/AdminDashboard.js
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api";
 import "../css/Dashboard.css";
 
 const BACKEND_ORIGIN = process.env.REACT_APP_BACKEND_ORIGIN || "http://localhost:5000";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [applications, setApplications] = useState([]);
+
+  const userName = localStorage.getItem("userName") || "Admin User";
+  const userPicture = localStorage.getItem("userPicture");
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -47,21 +52,36 @@ function AdminDashboard() {
     return Math.round((selected / total) * 100);
   }, [stats.totalApplications, stats.totalSelected]);
 
+  const logout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
     <div className="dashboard-container admin-dashboard">
       <div className="dashboard-header">
-        <div>
+        <div className="header-left">
           <h1>Placement Overview</h1>
           <p className="dashboard-subtitle">
             High‑level snapshot of the current placement season for your
             institute.
           </p>
         </div>
-        <div className="admin-meta">
-          <span className="admin-pill">Admin</span>
-          <span className="admin-pill subtle">
-            {new Date().toLocaleDateString()}
-          </span>
+        <div className="header-right">
+          <div className="user-profile">
+            {userPicture ? (
+              <img src={userPicture} alt={userName} className="profile-pic" />
+            ) : (
+              <div className="profile-placeholder">{userName.charAt(0)}</div>
+            )}
+            <div className="user-info">
+              <span className="user-name">{userName}</span>
+              <span className="user-role">Administrator</span>
+            </div>
+          </div>
+          <div className="actions">
+            <button className="btn-logout" onClick={logout}>Logout</button>
+          </div>
         </div>
       </div>
 

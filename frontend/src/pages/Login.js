@@ -26,6 +26,8 @@ function Login() {
       }
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
+      localStorage.setItem("userName", res.data.user?.name || "");
+      localStorage.setItem("userPicture", res.data.user?.picture || "");
 
       if (res.data.role === "admin") navigate("/admin");
       else if (res.data.role === "tpo") navigate("/tpo");
@@ -68,6 +70,8 @@ function Login() {
 
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("role", res.data.role);
+        localStorage.setItem("userName", res.data.user?.name || "");
+        localStorage.setItem("userPicture", res.data.user?.picture || "");
 
         if (res.data.role === "admin") navigate("/admin");
         else if (res.data.role === "tpo") navigate("/tpo");
@@ -133,6 +137,12 @@ function Login() {
           </span>
         </div>
 
+        <div className="auth-forgot">
+          <span onClick={() => alert("Please contact TPO cell to reset your password.")}>
+            Forgot Password?
+          </span>
+        </div>
+
         <button
           type="submit"
           className={loading ? "loading" : ""}
@@ -148,7 +158,7 @@ function Login() {
         <button
           type="button"
           onClick={handleGoogleLogin}
-          className="google-login-btn"
+          className="google-login-btn no-hover-color"
           disabled={loading || googleLoading}
         >
           <svg

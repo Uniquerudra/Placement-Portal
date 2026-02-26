@@ -66,7 +66,14 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ token, role: user.role });
+    res.json({ 
+      token, 
+      role: user.role,
+      user: {
+        name: user.name,
+        picture: user.picture || ""
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -110,7 +117,14 @@ router.post("/google", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ token, role: user.role });
+    res.json({ 
+      token, 
+      role: user.role,
+      user: {
+        name: user.name,
+        picture: user.picture || ""
+      }
+    });
   } catch (err) {
     console.error("Google OAuth error:", err);
     if (err.code === 11000) {

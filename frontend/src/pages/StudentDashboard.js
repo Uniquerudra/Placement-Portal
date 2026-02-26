@@ -30,6 +30,8 @@ const StudentDashboard = () => {
   const [applyLoading, setApplyLoading] = useState(false);
 
   const token = localStorage.getItem("token");
+  const userName = localStorage.getItem("userName") || "Student User";
+  const userPicture = localStorage.getItem("userPicture");
 
   const fetchAllData = useCallback(async () => {
     try {
@@ -133,22 +135,35 @@ const StudentDashboard = () => {
   return (
     <div className="dashboard-container student-dashboard">
       <div className="dashboard-header">
-        <div>
+        <div className="header-left">
           <h2>Student Dashboard</h2>
           <p className="dashboard-subtitle">
             View active placement drives, apply, and track your status.
           </p>
         </div>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button
-            className="btn-primary"
-            onClick={() => navigate("/student/resume-analyzer")}
-          >
-            Resume Analyzer
-          </button>
-          <button className="btn-danger" onClick={logout}>
-            Logout
-          </button>
+        <div className="header-right">
+          <div className="user-profile">
+            {userPicture ? (
+              <img src={userPicture} alt={userName} className="profile-pic" />
+            ) : (
+              <div className="profile-placeholder">{userName.charAt(0)}</div>
+            )}
+            <div className="user-info">
+              <span className="user-name">{userName}</span>
+              <span className="user-role">Student</span>
+            </div>
+          </div>
+          <div className="actions">
+            <button
+              className="btn-primary"
+              onClick={() => navigate("/student/resume-analyzer")}
+            >
+              Resume Analyzer
+            </button>
+            <button className="btn-logout" onClick={logout}>
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 

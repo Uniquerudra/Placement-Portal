@@ -5,6 +5,21 @@
             "destination": "/index.html"
         }
     ],
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "Cross-Origin-Opener-Policy",
+                    "value": "unsafe-none"
+                },
+                {
+                    "key": "Cross-Origin-Resource-Policy",
+                    "value": "cross-origin"
+                }
+            ]
+        }
+    ],
     "env": {
         "REACT_APP_API_URL": "https://portal-1tpo-backend.onrender.com/api",
         "REACT_APP_BACKEND_ORIGIN": "https://portal-1tpo-backend.onrender.com",

@@ -171,10 +171,31 @@
 }
 
 .google-login-btn:hover:enabled {
-  background: #f8fafc;
+  background: #fff;
   border-color: rgba(15, 23, 42, 0.2);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
+}
+
+.google-login-btn.no-hover-color:hover:enabled {
+  background: #fff;
+}
+
+.auth-forgot {
+  text-align: right;
+  margin: -4px 0 12px;
+}
+
+.auth-forgot span {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.auth-forgot span:hover {
+  color: #4f46e5;
 }
 
 .google-login-btn:disabled {

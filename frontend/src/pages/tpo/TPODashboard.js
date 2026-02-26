@@ -14,6 +14,13 @@ function TPODashboard() {
   const [stats, setStats] = useState({});
 
   const token = localStorage.getItem("token");
+  const userName = localStorage.getItem("userName") || "TPO User";
+  const userPicture = localStorage.getItem("userPicture");
+
+  const logout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
 
   // ✅ Fetch drives
   const fetchDrives = useCallback(async () => {
@@ -74,14 +81,28 @@ function TPODashboard() {
   return (
     <div className="dashboard-container tpo-dashboard">
       <div className="dashboard-header">
-        <div>
+        <div className="header-left">
           <h2>TPO Dashboard</h2>
           <p className="dashboard-subtitle">
             Manage campus drives and track student applications in real time.
           </p>
         </div>
-        <div className="actions">
-          <button onClick={() => navigate("/tpo/add-drive")}>+ Add Drive</button>
+        <div className="header-right">
+          <div className="user-profile">
+            {userPicture ? (
+              <img src={userPicture} alt={userName} className="profile-pic" />
+            ) : (
+              <div className="profile-placeholder">{userName.charAt(0)}</div>
+            )}
+            <div className="user-info">
+              <span className="user-name">{userName}</span>
+              <span className="user-role">TPO Admin</span>
+            </div>
+          </div>
+          <div className="actions">
+            <button className="btn-add" onClick={() => navigate("/tpo/add-drive")}>+ Add Drive</button>
+            <button className="btn-logout" onClick={logout}>Logout</button>
+          </div>
         </div>
       </div>
 
