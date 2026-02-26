@@ -181,8 +181,32 @@ function TPODashboard() {
                     type="button"
                     onClick={() => {
                       const subject = `Next Round Details - ${app.driveName} (${app.role})`;
-                      const body = `Dear ${app.studentName},%0D%0A%0D%0AYou have been shortlisted for the next round for ${app.driveName} - ${app.role}.%0D%0A%0D%0APlease find the details below:%0D%0A- Date & Time: %0D%0A- Mode / Location: %0D%0A- Things to carry: %0D%0A%0D%0ARegards,%0D%0ATPO Cell`;
-                      window.location.href = `mailto:${app.email}?subject=${subject}&body=${body}`;
+
+                      const body = `Dear ${app.studentName},
+
+You have been shortlisted for the next round for ${app.driveName} - ${app.role}.
+
+Please find the details below:
+- Date & Time:
+- Mode / Location:
+- Things to carry:
+
+Regards,
+TPO Cell`;
+
+                      // ✅ Gmail (Chrome) compose link
+                      const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+                        app.email
+                      )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+                      const newTab = window.open(gmailURL, "_blank");
+
+                      // 🔁 Fallback → default mail client (mailto)
+                      if (!newTab) {
+                        window.location.href = `mailto:${app.email}?subject=${encodeURIComponent(
+                          subject
+                        )}&body=${encodeURIComponent(body)}`;
+                      }
                     }}
                   >
                     Email
