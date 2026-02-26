@@ -27,14 +27,6 @@ app.use(cors({
   credentials: true,
 }));
 
-// Added headers for Google OAuth and Cross-Origin isolation issues
-app.use((req, res, next) => {
-  // Relaxing COOP to fix the window.closed error with Google OAuth
-  res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none");
-  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-  next();
-});
-
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
