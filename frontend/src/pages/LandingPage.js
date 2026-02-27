@@ -1,39 +1,78 @@
 // frontend/src/pages/LandingPage.js
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "../css/LandingPage.css";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="landing">
-
       {/* NAVBAR */}
-      <nav className="navbar">
-        <h2>Training and Placement Portal</h2>
-        <button onClick={() => navigate("/login")}>Login</button>
+      <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
+        <div className="navbar-logo" onClick={() => navigate("/")}>
+          <span className="logo-icon">🚀</span>
+          <h2>TPO Portal</h2>
+        </div>
+
+        <div className="navbar-links">
+          <span onClick={() => scrollToSection("hero")}>Home</span>
+          <span onClick={() => scrollToSection("stats")}>Stats</span>
+          <span onClick={() => scrollToSection("recruiters")}>Recruiters</span>
+          <span onClick={() => scrollToSection("notices")}>Notices</span>
+        </div>
+
+        <div className="navbar-actions">
+          <button className="login-btn" onClick={() => navigate("/login")}>Login</button>
+          <button className="register-btn" onClick={() => navigate("/register")}>Register</button>
+        </div>
       </nav>
 
       {/* HERO */}
-      <section className="hero">
+      <section className="hero" id="hero">
         <div className="hero-text">
           <div className="hero-badge">
             <span className="hero-badge-dot" />
-            Training & Placement Cell
+            Training & Placement Cell • AKGEC
           </div>
-          <h1>Launch your career with the TPO Portal</h1>
+          <h1>Empowering Futures, <br />Connecting Dreams</h1>
           <p>
-            A single, smart platform that keeps students, TPO, and recruiters
-            perfectly in sync for every placement drive.
+            Bridging the gap between ambitious students and world-class organizations.
+            Automated placement workflow for higher efficiency and better results.
           </p>
 
           <div className="hero-actions">
             <button className="glow-btn" onClick={() => navigate("/login")}>
               Get Started
             </button>
-            <div className="hero-secondary">
-              <span>For Students, TPO & Recruiters</span>
-              <span>• Real‑time updates • Seamless applications</span>
+            <button className="outline-btn" onClick={() => scrollToSection("notices")}>
+              View Drives
+            </button>
+          </div>
+
+          <div className="hero-trust">
+            <p>Trusted by industrial leaders</p>
+            <div className="trust-icons">
+              <span>Microsoft</span>
+              <span>Google</span>
+              <span>Amazon</span>
+              <span>Adobe</span>
             </div>
           </div>
         </div>
@@ -41,76 +80,145 @@ const LandingPage = () => {
         <div className="hero-visual">
           <div className="hero-card">
             <div className="hero-card-header">
-              <div className="hero-card-title">Current Season Snapshot</div>
-              <span className="hero-chip">Live drives</span>
+              <div className="hero-card-title">Placement Highlights 2026</div>
+              <span className="hero-chip">Live</span>
             </div>
 
             <div className="hero-card-metrics">
-              <div>
-                <div className="hero-metric-label">Active Companies</div>
-                <div className="hero-metric-value">28</div>
-                <div className="hero-metric-sub">+6 this week</div>
+              <div className="metric-item">
+                <div className="hero-metric-label">Active Drives</div>
+                <div className="hero-metric-value">12</div>
+                <div className="hero-metric-sub">+3 today</div>
               </div>
-              <div>
-                <div className="hero-metric-label">Students Placed</div>
-                <div className="hero-metric-value">842</div>
-                <div className="hero-metric-sub">92% CS batch</div>
+              <div className="metric-item">
+                <div className="hero-metric-label">Offers Made</div>
+                <div className="hero-metric-value">450+</div>
+                <div className="hero-metric-sub">Across 50+ companies</div>
+              </div>
+            </div>
+
+            <div className="hero-card-footer">
+              <div className="user-stack">
+                <img src="https://i.pravatar.cc/150?u=1" alt="u1" />
+                <img src="https://i.pravatar.cc/150?u=2" alt="u2" />
+                <img src="https://i.pravatar.cc/150?u=3" alt="u3" />
+                <span>+800 students joined</span>
               </div>
             </div>
           </div>
           <div className="hero-pulse" />
+          <div className="floating-blob" />
         </div>
       </section>
 
       {/* STATS */}
-      <section className="stats">
-        <div className="stat-card">
-          <h2>250+</h2>
-          <p>Companies</p>
+      <section className="stats" id="stats">
+        <div className="section-header">
+          <h2>Our Statistics</h2>
+          <p>Numbers that define our excellence in training and placements.</p>
         </div>
-        <div className="stat-card">
-          <h2>1200+</h2>
-          <p>Students Placed</p>
-        </div>
-        <div className="stat-card">
-          <h2>45 LPA</h2>
-          <p>Highest Package</p>
-        </div>
-        <div className="stat-card">
-          <h2>12 LPA</h2>
-          <p>Average Package</p>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon">🏢</div>
+            <h2>250+</h2>
+            <p>Companies visited</p>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">🎓</div>
+            <h2>1200+</h2>
+            <p>Students Placed</p>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">💰</div>
+            <h2>45 LPA</h2>
+            <p>Highest Package</p>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">📈</div>
+            <h2>12 LPA</h2>
+            <p>Average Package</p>
+          </div>
         </div>
       </section>
 
       {/* RECRUITERS */}
-      <section className="recruiters">
-        <h2>Top Recruiters</h2>
+      <section className="recruiters" id="recruiters">
+        <div className="section-header">
+          <h2>Top Global Recruiters</h2>
+          <p>Our students are working in the world's most prestigious organizations.</p>
+        </div>
         <div className="recruiter-logos">
-          <img src="https://cdn4.iconfinder.com/data/icons/logos-brands-7/512/google_logo-google_icongoogle-1024.png" alt="Google" />
-          <img src="https://s3-alpha.figma.com/hub/file/2747494711/31b6ad5c-b404-4086-a685-89b1d5294f1c-cover.png" alt="Microsoft" />
-          <img src="https://tse2.mm.bing.net/th/id/OIP.YdkQGmhB9c2Sr84FeDD9egHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Amazon" />
-          <img src="https://tse4.mm.bing.net/th/id/OIP.MPHAVL52hadir7pe0HszoAHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Adobe" />
-          <img src="https://tse2.mm.bing.net/th/id/OIP.idB_-eo5pNgOG8Ker3jEpgHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Flipkart" />
-          <img src="https://tse1.mm.bing.net/th/id/OIP.4Czaum8sTdcx4p5gytXDMQHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Paytm" />
-          <img src="https://tse3.mm.bing.net/th/id/OIP.66Pcv6DGbh5yA-Gdtz6ruAHaD4?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Newgen" />
+          <div className="logo-wrapper"><img src="https://cdn4.iconfinder.com/data/icons/logos-brands-7/512/google_logo-google_icongoogle-1024.png" alt="Google" /></div>
+          <div className="logo-wrapper"><img src="https://s3-alpha.figma.com/hub/file/2747494711/31b6ad5c-b404-4086-a685-89b1d5294f1c-cover.png" alt="Microsoft" /></div>
+          <div className="logo-wrapper"><img src="https://tse2.mm.bing.net/th/id/OIP.YdkQGmhB9c2Sr84FeDD9egHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Amazon" /></div>
+          <div className="logo-wrapper"><img src="https://tse4.mm.bing.net/th/id/OIP.MPHAVL52hadir7pe0HszoAHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Adobe" /></div>
+          <div className="logo-wrapper"><img src="https://tse2.mm.bing.net/th/id/OIP.idB_-eo5pNgOG8Ker3jEpgHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Flipkart" /></div>
+          <div className="logo-wrapper"><img src="https://tse1.mm.bing.net/th/id/OIP.4Czaum8sTdcx4p5gytXDMQHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Paytm" /></div>
         </div>
       </section>
 
       {/* NOTICES */}
-      <section className="notices">
-        <h2>Latest Notices</h2>
-        <ul>
-          <li>🚀 TCS Ninja Drive – 15 Feb</li>
-          <li>🔥 Infosys Hiring – Apply Now</li>
-          <li>🎯 Resume Workshop – 18 Feb</li>
-          <li>💼 Amazon Internship Open</li>
-        </ul>
+      <section className="notices" id="notices">
+        <div className="section-header">
+          <h2>Latest Placement Notices</h2>
+          <p>Stay updated with the latest drives and workshops.</p>
+        </div>
+        <div className="notices-list">
+          <div className="notice-item">
+            <div className="notice-icon">🚀</div>
+            <div className="notice-content">
+              <h3>TCS Ninja Drive 2026</h3>
+              <p>Registration ends on 15 Feb. Eligible batches: 2026 CS/IT.</p>
+            </div>
+          </div>
+          <div className="notice-item">
+            <div className="notice-icon">🔥</div>
+            <div className="notice-content">
+              <h3>Infosys Specialist Hiring</h3>
+              <p>Apply for the Specialist Programmer role. Multiple openings.</p>
+            </div>
+          </div>
+          <div className="notice-item">
+            <div className="notice-icon">🎯</div>
+            <div className="notice-content">
+              <h3>Resume & Interview Workshop</h3>
+              <p>Join us on 18 Feb for a session by industry experts.</p>
+            </div>
+          </div>
+          <div className="notice-item">
+            <div className="notice-icon">💼</div>
+            <div className="notice-content">
+              <h3>Amazon Internship 2026</h3>
+              <p>SDE Internship opportunities now open. Apply through portal.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <footer>
-        <p>© 2026 TPO Portal for AKGEC College | Designed for Placement Excellence By Rudra Pal</p>
+      <footer className="landing-footer">
+        <div className="footer-content">
+          <div className="footer-logo">
+            <span className="logo-icon">🚀</span>
+            <h3>TPO Portal</h3>
+            <p>Empowering the next generation of professionals.</p>
+          </div>
+          <div className="footer-links">
+            <h4>Quick Links</h4>
+            <span onClick={() => scrollToSection("hero")}>Home</span>
+            <span onClick={() => scrollToSection("stats")}>Statistics</span>
+            <span onClick={() => scrollToSection("notices")}>Notices</span>
+            <span onClick={() => navigate("/forgot-password")}>Forgot Password</span>
+          </div>
+          <div className="footer-contact">
+            <h4>Contact Us</h4>
+            <p>Email: tpo@akgec.ac.in</p>
+            <p>Phone: +91 1234567890</p>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>© 2026 TPO Portal for AKGEC College | Designed for Placement Excellence By Rudra Pal</p>
+        </div>
       </footer>
-
     </div>
   );
 };

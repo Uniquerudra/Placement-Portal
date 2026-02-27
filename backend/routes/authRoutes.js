@@ -31,6 +31,31 @@ router.post("/register", async (req, res) => {
       role: finalRole,
     });
 
+    // Send Welcome Email
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "Welcome to TPO Portal!",
+        message: `Hello ${user.name},\n\nYour account has been successfully created on the TPO Portal. You can now log in and apply for placement drives.\n\nBest regards,\nTPO Team`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #4f46e5;">Welcome to TPO Portal!</h2>
+            <p>Hello <strong>${user.name}</strong>,</p>
+            <p>Your account has been successfully created on the TPO Portal. You can now log in and explore the latest placement opportunities.</p>
+            <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0;"><strong>Role:</strong> ${user.role.toUpperCase()}</p>
+              <p style="margin: 5px 0 0 0;"><strong>Email:</strong> ${user.email}</p>
+            </div>
+            <a href="${process.env.FRONTEND_URL}/login" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Login to Portal</a>
+            <p style="margin-top: 20px; font-size: 0.8em; color: #6b7280;">If you did not create this account, please contact the TPO administrator.</p>
+          </div>
+        `,
+      });
+    } catch (emailErr) {
+      console.error("Welcome email failed:", emailErr.message);
+      // Don't fail the registration if email fails
+    }
+
     res.status(201).json({
       message: "Account created successfully",
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
@@ -66,8 +91,8 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ 
-      token, 
+    res.json({
+      token,
       role: user.role,
       user: {
         name: user.name,
@@ -117,8 +142,8 @@ router.post("/google", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ 
-      token, 
+    res.json({
+      token,
       role: user.role,
       user: {
         name: user.name,
@@ -131,6 +156,102 @@ router.post("/google", async (req, res) => {
       // Duplicate key error
       return res.status(400).json({ message: "Email or Google ID already registered" });
     }
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
+
+// Forgot Password route
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "There is no user with that email" });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+
+    // Set reset token and expiry on user
+    user.resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 mins
+
+    await user.save();
+
+    // Create reset URL - Permanent fix: Use request origin or fallback to env
+    const frontendUrl = req.headers.origin || process.env.FRONTEND_URL || "http://localhost:3008";
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+
+    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please click the link below to reset your password:\n\n ${resetUrl}`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "Password Reset Token",
+        message,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Password Reset Request</h2>
+            <p>You requested a password reset for your TPO Portal account.</p>
+            <p>Please click the button below to reset your password. This link is valid for 10 minutes.</p>
+            <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Reset Password</a>
+            <p style="margin-top: 20px;">If you did not request this, please ignore this email.</p>
+          </div>
+        `,
+      });
+
+      res.status(200).json({ message: "Email sent" });
+    } catch (err) {
+      console.error("FORGOT PASSWORD EMAIL ERROR:", err);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save();
+      return res.status(500).json({
+        message: "Email could not be sent",
+        error: err.message
+      });
+    }
+  } catch (err) {
+    console.error("FORGOT PASSWORD SERVER ERROR:", err);
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+});
+
+// Reset Password route
+router.post("/reset-password/:token", async (req, res) => {
+  try {
+    // Get hashed token
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Set new password
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server Error" });
   }
 });

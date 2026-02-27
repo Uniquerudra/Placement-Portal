@@ -19,7 +19,7 @@ app.use(cors({
     if (!origin) return callback(null, true);
 
     // In production, you might want to restrict this to your actual domains
-    // For now, allowing all to debug CORS issues, but keeping it as a function for easier restriction later
+
     callback(null, true);
   },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],

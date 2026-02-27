@@ -138,7 +138,7 @@ function Login() {
         </div>
 
         <div className="auth-forgot">
-          <span onClick={() => alert("Please contact TPO cell to reset your password.")}>
+          <span onClick={() => navigate("/forgot-password")}>
             Forgot Password?
           </span>
         </div>

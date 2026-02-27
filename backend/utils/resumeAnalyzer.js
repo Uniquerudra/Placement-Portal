@@ -3,12 +3,12 @@ const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
 
 const STOPWORDS = new Set([
-  "a","an","and","are","as","at","be","but","by","for","from","has","have","he","her","his",
-  "i","if","in","into","is","it","its","me","my","of","on","or","our","she","so","that",
-  "the","their","them","then","there","these","they","this","to","was","we","were","what",
-  "when","where","which","who","will","with","you","your",
+  "a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from", "has", "have", "he", "her", "his",
+  "i", "if", "in", "into", "is", "it", "its", "me", "my", "of", "on", "or", "our", "she", "so", "that",
+  "the", "their", "them", "then", "there", "these", "they", "this", "to", "was", "we", "were", "what",
+  "when", "where", "which", "who", "will", "with", "you", "your",
   // common resume filler
-  "responsible","worked","work","working","experience","project","projects","skills","skill",
+  "responsible", "worked", "work", "working", "experience", "project", "projects", "skills", "skill",
 ]);
 
 function clamp(n, min, max) {

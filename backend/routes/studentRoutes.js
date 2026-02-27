@@ -5,6 +5,8 @@ const multer = require("multer");
 const { v2: cloudinary } = require("cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
+const sendEmail = require("../utils/sendEmail");
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -131,7 +133,7 @@ router.post(
         portfolioUrl,
         additionalInfo,
       } = req.body;
-
+      const { driveId } = req.params;
       const drive = await Drive.findById(driveId);
       if (!drive) {
         return res.status(404).json({ message: "Drive not found" });
@@ -166,6 +168,32 @@ router.post(
         additionalInfo,
         resumeUrl,
       });
+
+      // Send Application Confirmation Email
+      try {
+        await sendEmail({
+          email: application.email,
+          subject: `Application Received: ${drive.companyName}`,
+          message: `Hello ${application.fullName},\n\nWe have received your application for the ${drive.role} position at ${drive.companyName}.\n\nApplication Details:\n- Drive: ${drive.companyName}\n- Role: ${drive.role}\n- Status: Applied\n\nYou can track your application status on the portal.\n\nBest regards,\nTPO Team`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4f46e5;">Application Confirmed</h2>
+              <p>Hello <strong>${application.fullName}</strong>,</p>
+              <p>Your application for <strong>${drive.companyName}</strong> has been successfully received.</p>
+              <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0;"><strong>Company:</strong> ${drive.companyName}</p>
+                <p style="margin: 5px 0 0 0;"><strong>Role:</strong> ${drive.role}</p>
+                <p style="margin: 5px 0 0 0;"><strong>Status:</strong> Applied</p>
+              </div>
+              <p>Our TPO team will review your application and update you on the next steps.</p>
+              <a href="${process.env.FRONTEND_URL}/student" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">View Dashboard</a>
+              <p style="margin-top: 20px; font-size: 0.8em; color: #6b7280;">This is an automated confirmation email.</p>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error("Application confirmation email failed:", emailErr.message);
+      }
 
       res.status(201).json(application);
     } catch (err) {
