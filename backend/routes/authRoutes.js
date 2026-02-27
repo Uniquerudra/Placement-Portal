@@ -4,6 +4,8 @@ const router = express.Router();
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
 
 // Register route (Student / TPO)
 router.post("/register", async (req, res) => {
@@ -160,16 +162,19 @@ router.post("/google", async (req, res) => {
   }
 });
 
-const crypto = require("crypto");
-const sendEmail = require("../utils/sendEmail");
 
 // Forgot Password route
 router.post("/forgot-password", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ message: "There is no user with that email" });
+      return res.status(404).json({ message: "No user found with this email" });
     }
 
     // Generate reset token
