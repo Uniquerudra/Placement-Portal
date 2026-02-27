@@ -14,10 +14,11 @@ const sendEmail = async (options) => {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            connectionTimeout: 10000, // 10 seconds
+            connectionTimeout: 10000,
             tls: {
-                rejectUnauthorized: false // Helps avoid SSL handshake issues on some cloud providers
-            }
+                rejectUnauthorized: false
+            },
+            family: 4 // Forces IPv4 (Fixes ENETUNREACH IPv6 issues on Render)
         });
 
         // Verify connection configuration
