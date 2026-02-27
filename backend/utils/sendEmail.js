@@ -37,7 +37,7 @@ const sendEmail = async (options) => {
         return info;
     } catch (error) {
         console.error("Error sending email:", error.message);
-        throw new Error("Email could not be sent. Please check SMTP settings.");
+        throw new Error(error.message); // Show raw error for debugging
     }
 };
 
