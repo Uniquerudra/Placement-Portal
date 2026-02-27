@@ -189,9 +189,17 @@ router.post("/forgot-password", async (req, res) => {
 
     await user.save();
 
-    // Create reset URL - Permanent fix: Use request origin or fallback to env
-    const frontendUrl = req.headers.origin || process.env.FRONTEND_URL || "http://localhost:3008";
+    // Create reset URL - Permanent fix for Production/Local sync
+    const origin = req.headers.origin;
+    const envUrl = process.env.FRONTEND_URL;
+
+    // Choose the best URL: Origin from browser, then .env, then local fallback
+    const frontendUrl = origin || envUrl || "http://localhost:3008";
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+
+    console.log("DEBUG: Request Origin:", origin);
+    console.log("DEBUG: Env FRONTEND_URL:", envUrl);
+    console.log("DEBUG: Final Reset URL:", resetUrl);
 
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please click the link below to reset your password:\n\n ${resetUrl}`;
 
