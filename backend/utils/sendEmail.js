@@ -7,45 +7,33 @@ const dns = require("dns");
  */
 const sendEmail = async (options) => {
     try {
-        const hostname = process.env.SMTP_HOST || "smtp.gmail.com";
-        const port = parseInt(process.env.SMTP_PORT) || 587;
-
-        // --- ULTIMATE FIX FOR RENDER ENETUNREACH (IPv6) ---
-        // Manually resolve to IPv4 address to bypass Render's broken IPv6 routing
-        let finalHost = hostname;
-        try {
-            const addresses = await dns.promises.resolve4(hostname);
-            if (addresses && addresses.length > 0) {
-                finalHost = addresses[0];
-                console.log(`RENDER FIX: Resolved ${hostname} to IPv4: ${finalHost}`);
-            }
-        } catch (dnsErr) {
-            console.warn("DNS Resolve4 failed, falling back to hostname:", dnsErr.message);
-        }
+        // Unique ID for this build (to verify Render logs)
+        const DEPLOY_ID = "v3_FINAL_FIX_DNS_4_PORT_465";
+        console.log(`[${DEPLOY_ID}] ATTEMPTING EMAIL TO:`, options.email);
 
         const transporter = nodemailer.createTransport({
-            host: finalHost,
-            port: port,
-            secure: port === 465, // true for 465, false for 587
+            host: "smtp.gmail.com",
+            port: 465, // SSL: This is often more stable than 587 on Render
+            secure: true,
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            tls: {
-                rejectUnauthorized: false,
-                servername: hostname, // Required when using IP address as host
-                minVersion: "TLSv1.2"
+            // FORCE IPv4: This is the only way to stop Render from using their broken IPv6 routes
+            lookup: (hostname, dnsOptions, callback) => {
+                dns.lookup(hostname, { family: 4 }, (err, address, family) => {
+                    if (err) return callback(err);
+                    console.log(`[${DEPLOY_ID}] DNS RESOLVED ${hostname} to ${address}`);
+                    callback(null, address, family);
+                });
             },
             connectionTimeout: 20000,
             greetingTimeout: 20000,
             socketTimeout: 20000,
         });
 
-        // Verify connection configuration
-        await transporter.verify();
-
         const message = {
-            from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+            from: `${process.env.FROM_NAME || 'TPO Portal'} <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
             to: options.email,
             subject: options.subject,
             text: options.message,
@@ -53,11 +41,11 @@ const sendEmail = async (options) => {
         };
 
         const info = await transporter.sendMail(message);
-        console.log("Email sent successfully: %s", info.messageId);
+        console.log(`[${DEPLOY_ID}] SUCCESS! Message ID:`, info.messageId);
         return info;
     } catch (error) {
-        console.error("CRITICAL EMAIL ERROR:", error.stack);
-        throw new Error(`SMTP Error: ${error.message}${error.code ? ' (Code: ' + error.code + ')' : ''}`);
+        console.error("DEBUG ERROR STACK:", error.stack);
+        throw new Error(`Email Error: ${error.message} (${error.code || 'UNKNOWN_CODE'})`);
     }
 };
 
