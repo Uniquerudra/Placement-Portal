@@ -21,7 +21,7 @@ const sendEmail = async (options) => {
 // SendGrid Web API - Works on Render Free Tier!
 const sendViaSendGridAPI = async (options, LOG_ID) => {
     const apiKey = process.env.SENDGRID_API_KEY;
-    const fromEmail = process.env.FROM_EMAIL || process.env.SMTP_USER;
+    const fromEmail = process.env.FROM_EMAIL || process.env.SMTP_USER || 'rudrapal9b38@gmail.com';
     
     console.log(`${LOG_ID} Sending via SendGrid Web API to ${options.email}`);
     
