@@ -7,18 +7,21 @@ const nodemailer = require("nodemailer");
 const sendEmail = async (options) => {
     try {
         const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
+            host: process.env.SMTP_HOST || "smtp.gmail.com",
             port: parseInt(process.env.SMTP_PORT) || 465,
-            secure: parseInt(process.env.SMTP_PORT) === 465,
+            secure: parseInt(process.env.SMTP_PORT) === 465, // true for 465, false for 587
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            connectionTimeout: 10000,
+            connectionTimeout: 20000, // Increase to 20 seconds
+            greetingTimeout: 20000,
+            socketTimeout: 20000,
             tls: {
-                rejectUnauthorized: false
+                rejectUnauthorized: false,
+                minVersion: "TLSv1.2"
             },
-            family: 4 // Forces IPv4 (Fixes ENETUNREACH IPv6 issues on Render)
+            family: 4 // Forces IPv4 (Fixes ENETUNREACH/Timeout on Render)
         });
 
         // Verify connection configuration
