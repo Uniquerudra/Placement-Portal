@@ -1,40 +1,45 @@
 const nodemailer = require("nodemailer");
-const dns = require("dns");
-
-// ☢️ NUCLEAR FIX: Force Node to prefer IPv4 for EVERYTHING in this process.
-// This is required because Render's networking stack often breaks on IPv6 attempts.
-if (dns.setDefaultResultOrder) {
-    dns.setDefaultResultOrder("ipv4first");
-}
+const dns = require("dns").promises;
 
 /**
  * Send an email using Nodemailer
- * @param {Object} options - Email options (email, subject, message, html)
+ * ⚛️ ATOMIC FIX FOR RENDER: 
+ * 1. Manually resolve 'smtp.gmail.com' to an IPv4 address to bypass Render's broken IPv6 stack.
+ * 2. Use Port 465 (SSL) which is generally more stable than 587 on cloud proxies.
  */
 const sendEmail = async (options) => {
-    // Unique ID for the current build/fix to verify logs on Render
-    const LOG_PREFIX = "[v5_NUCLEAR_IPV4_GMAIL_587]";
+    const LOG_ID = "[v6_ATOMIC_IP_SSL_465]";
 
     try {
-        console.log(`${LOG_PREFIX} ATTEMPTING EMAIL TO:`, options.email);
+        console.log(`${LOG_ID} Resolving smtp.gmail.com...`);
 
-        // We use port 587 with secure: false (it will use STARTTLS)
-        // This is generally more reliable on shared cloud networks like Render.
+        let targetHost = "smtp.gmail.com";
+        try {
+            // Force resolve to IPv4
+            const addresses = await dns.resolve4("smtp.gmail.com");
+            if (addresses && addresses.length > 0) {
+                targetHost = addresses[0];
+                console.log(`${LOG_ID} Resolved to IPv4:`, targetHost);
+            }
+        } catch (dnsErr) {
+            console.warn(`${LOG_ID} DNS Resolve failed, falling back to hostname:`, dnsErr.message);
+        }
+
         const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 587,
-            secure: false, // true for 465, false for 587
+            host: targetHost,
+            port: 465,
+            secure: true, // Use SSL
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            // Double force IPv4 at the socket level too
-            family: 4,
+            // Since we are using an IP address (potentially), we MUST provide the servername for TLS SNI
             tls: {
-                // Do not fail on invalid certs (common on cloud relays)
-                rejectUnauthorized: false,
-                minVersion: "TLSv1.2"
-            }
+                servername: "smtp.gmail.com",
+                rejectUnauthorized: false
+            },
+            connectionTimeout: 10000,
+            greetingTimeout: 10000
         });
 
         const message = {
@@ -45,13 +50,13 @@ const sendEmail = async (options) => {
             html: options.html,
         };
 
+        console.log(`${LOG_ID} Sending email to ${options.email} via ${targetHost}:465...`);
         const info = await transporter.sendMail(message);
-        console.log(`${LOG_PREFIX} SUCCESS! MessageId:`, info.messageId);
+        console.log(`${LOG_ID} SUCCESS! MessageId:`, info.messageId);
         return info;
     } catch (error) {
-        console.error(`${LOG_PREFIX} CRITICAL_FAILURE:`, error.stack);
-        // Throw a helpful error that the frontend can display
-        throw new Error(`Email could not be sent: ${error.message} (${error.code || 'NO_CODE'})`);
+        console.error(`${LOG_ID} ERROR:`, error);
+        throw new Error(`Email Error: ${error.message} (Code: ${error.code || 'N/A'})`);
     }
 };
 
