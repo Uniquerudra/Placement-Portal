@@ -80,6 +80,9 @@ function TPODashboard() {
 
   return (
     <div className="dashboard-container tpo-dashboard">
+      <button className="btn-back" onClick={() => navigate("/")}>
+        ← Go Back
+      </button>
       <div className="dashboard-header">
         <div className="header-left">
           <h2>TPO Dashboard</h2>
@@ -89,11 +92,13 @@ function TPODashboard() {
         </div>
         <div className="header-right">
           <div className="user-profile">
-            {userPicture ? (
-              <img src={userPicture} alt={userName} className="profile-pic" />
-            ) : (
-              <div className="profile-placeholder">{userName.charAt(0)}</div>
-            )}
+            <div className="profile-img-container">
+              {userPicture ? (
+                <img src={userPicture} alt={userName} className="profile-pic" />
+              ) : (
+                <div className="profile-placeholder">{userName.charAt(0)}</div>
+              )}
+            </div>
             <div className="user-info">
               <span className="user-name">{userName}</span>
               <span className="user-role">TPO Admin</span>

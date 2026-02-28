@@ -59,6 +59,9 @@ function AdminDashboard() {
 
   return (
     <div className="dashboard-container admin-dashboard">
+      <button className="btn-back" onClick={() => navigate("/")}>
+        ← Go Back
+      </button>
       <div className="dashboard-header">
         <div className="header-left">
           <h1>Placement Overview</h1>
@@ -69,11 +72,13 @@ function AdminDashboard() {
         </div>
         <div className="header-right">
           <div className="user-profile">
-            {userPicture ? (
-              <img src={userPicture} alt={userName} className="profile-pic" />
-            ) : (
-              <div className="profile-placeholder">{userName.charAt(0)}</div>
-            )}
+            <div className="profile-img-container">
+              {userPicture ? (
+                <img src={userPicture} alt={userName} className="profile-pic" />
+              ) : (
+                <div className="profile-placeholder">{userName.charAt(0)}</div>
+              )}
+            </div>
             <div className="user-info">
               <span className="user-name">{userName}</span>
               <span className="user-role">Administrator</span>
