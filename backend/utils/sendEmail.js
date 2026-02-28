@@ -6,15 +6,20 @@ const nodemailer = require("nodemailer");
  */
 const sendEmail = async (options) => {
     try {
+        const isGmail = (process.env.SMTP_HOST || "smtp.gmail.com").includes("gmail.com");
+        const port = parseInt(process.env.SMTP_PORT) || 587;
+
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST || "smtp.gmail.com",
-            port: parseInt(process.env.SMTP_PORT) || 465,
-            secure: parseInt(process.env.SMTP_PORT) === 465, // true for 465, false for 587
+            port: port,
+            secure: port === 465, // true for 465, false for other ports (like 587)
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            connectionTimeout: 20000, // Increase to 20 seconds
+            // For port 587 (STARTTLS)
+            requireTLS: port === 587,
+            connectionTimeout: 20000,
             greetingTimeout: 20000,
             socketTimeout: 20000,
             tls: {
