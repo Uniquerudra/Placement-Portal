@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 
 /**
  * Send an email using Nodemailer
@@ -17,6 +18,10 @@ const sendEmail = async (options) => {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
+            // Force IPv4 by resolving the hostname explicitly
+            lookup: (hostname, options, callback) => {
+                dns.lookup(hostname, { family: 4 }, callback);
+            },
             // For port 587 (STARTTLS)
             requireTLS: port === 587,
             connectionTimeout: 20000,
@@ -25,8 +30,7 @@ const sendEmail = async (options) => {
             tls: {
                 rejectUnauthorized: false,
                 minVersion: "TLSv1.2"
-            },
-            family: 4 // Forces IPv4 (Fixes ENETUNREACH/Timeout on Render)
+            }
         });
 
         // Verify connection configuration
