@@ -172,7 +172,7 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      <h3 style={{ marginTop: "26px" }}>Available Drives</h3>
+      <h3 className="table-section-title">Available Drives</h3>
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -219,7 +219,7 @@ const StudentDashboard = () => {
         </div>
       )}
 
-      <h3 style={{ marginTop: "40px" }}>My Recent Applications</h3>
+      <h3 className="table-section-title">My Recent Applications</h3>
       <table className="dashboard-table">
         <thead>
           <tr>

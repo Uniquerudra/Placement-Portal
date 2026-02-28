@@ -161,8 +161,8 @@ function AdminDashboard() {
         </div>
       </section>
 
-      <h3 style={{ marginTop: "32px" }}>Recent Applications</h3>
-      <table className="dashboard-table" style={{ marginTop: 14 }}>
+      <h3 className="table-section-title">Recent Applications</h3>
+      <table className="dashboard-table">
         <thead>
           <tr>
             <th>Student</th>
