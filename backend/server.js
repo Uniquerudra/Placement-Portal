@@ -1,10 +1,11 @@
 // server.js
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
-const connectDB = require("./config/db");
-const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
+console.log("ENVIRONMENT STATUS: Loaded config from", path.join(__dirname, ".env"));
+console.log("AVAILABLE SMTP USER:", process.env.SMTP_USER ? "YES" : "NO");
 
+const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const driveRoutes = require("./routes/driveRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
