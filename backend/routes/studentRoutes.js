@@ -186,7 +186,7 @@ router.post(
                 <p style="margin: 5px 0 0 0;"><strong>Status:</strong> Applied</p>
               </div>
               <p>Our TPO team will review your application and update you on the next steps.</p>
-              <a href="${process.env.FRONTEND_URL}/student" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">View Dashboard</a>
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/student" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">View Dashboard</a>
               <p style="margin-top: 20px; font-size: 0.8em; color: #6b7280;">This is an automated confirmation email.</p>
             </div>
           `,

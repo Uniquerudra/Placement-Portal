@@ -48,7 +48,7 @@ router.post("/register", async (req, res) => {
               <p style="margin: 0;"><strong>Role:</strong> ${user.role.toUpperCase()}</p>
               <p style="margin: 5px 0 0 0;"><strong>Email:</strong> ${user.email}</p>
             </div>
-            <a href="${process.env.FRONTEND_URL}/login" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Login to Portal</a>
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Login to Portal</a>
             <p style="margin-top: 20px; font-size: 0.8em; color: #6b7280;">If you did not create this account, please contact the TPO administrator.</p>
           </div>
         `,
@@ -163,7 +163,13 @@ router.post("/google", async (req, res) => {
 });
 
 
-// Forgot Password route
+// Forgot Password route (GET - for accidental access)
+router.get("/forgot-password", (req, res) => {
+  const envUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+  res.redirect(`${envUrl}/forgot-password`);
+});
+
+// Forgot Password route (POST)
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -189,12 +195,17 @@ router.post("/forgot-password", async (req, res) => {
 
     await user.save();
 
-    // Create reset URL - Permanent fix for Production/Local sync
+    // Choose the best URL: Origin from browser, then .env, then local fallback
+    // Fix: If origin is the backend itself, fallback to envUrl
     const origin = req.headers.origin;
     const envUrl = process.env.FRONTEND_URL;
+    let frontendUrl = origin || envUrl || "http://localhost:3000";
 
-    // Choose the best URL: Origin from browser, then .env, then local fallback
-    const frontendUrl = origin || envUrl || "http://localhost:3008";
+    // Safety check: if frontendUrl somehow contains '/api', it's likely the backend URL
+    if (frontendUrl.includes("/api")) {
+      frontendUrl = envUrl || "http://localhost:3000";
+    }
+
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
     console.log("DEBUG: Request Origin:", origin);
@@ -236,7 +247,13 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// Reset Password route
+// Reset Password route (GET - for accidental link access)
+router.get("/reset-password/:token", (req, res) => {
+  const envUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+  res.redirect(`${envUrl}/reset-password/${req.params.token}`);
+});
+
+// Reset Password route (POST)
 router.post("/reset-password/:token", async (req, res) => {
   try {
     // Get hashed token
