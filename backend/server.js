@@ -14,13 +14,25 @@ const studentRoutes = require("./routes/studentRoutes");
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://portal-iaxw.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3008'
+].filter(Boolean);
+
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-
-    // In production, you might want to restrict this to your actual domains
-
+    
+    // Check if origin is allowed
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // For development - allow all
+    console.log('CORS - Origin not in allowed list:', origin);
     callback(null, true);
   },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
