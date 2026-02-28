@@ -1,6 +1,7 @@
 // server.js
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 console.log("ENVIRONMENT STATUS: Loaded config from", path.join(__dirname, ".env"));
 console.log("AVAILABLE SMTP USER:", process.env.SMTP_USER ? "YES" : "NO");
