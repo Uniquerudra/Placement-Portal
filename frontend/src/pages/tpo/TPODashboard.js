@@ -130,7 +130,7 @@ function TPODashboard() {
       </div>
 
       {/* 🔹 DRIVES SECTION */}
-      <h3 style={{ marginTop: "30px" }}>All Drives</h3>
+      <h3 className="table-section-title">All Drives</h3>
       <div className="dashboard-cards">
         {drives.map((drive) => (
           <div className="card" key={drive._id}>
@@ -150,7 +150,7 @@ function TPODashboard() {
       </div>
 
       {/* 🔹 APPLICATIONS SECTION */}
-      <h3 style={{ marginTop: "40px" }}>Student Applications</h3>
+      <h3 className="table-section-title">Student Applications</h3>
       <table className="dashboard-table">
         <thead>
           <tr>
