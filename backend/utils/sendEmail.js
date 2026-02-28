@@ -1,62 +1,78 @@
 const nodemailer = require("nodemailer");
-const dns = require("dns").promises;
 
 /**
- * Send an email using Nodemailer
- * ⚛️ ATOMIC FIX FOR RENDER: 
- * 1. Manually resolve 'smtp.gmail.com' to an IPv4 address to bypass Render's broken IPv6 stack.
- * 2. Use Port 465 (SSL) which is generally more stable than 587 on cloud proxies.
+ * Atomic Hybrid Email Sender for Render/Cloud Platforms
+ * Bypasses IPv6 issues and connectivity timeouts by trying multiple ports
  */
 const sendEmail = async (options) => {
-    const LOG_ID = "[v6_ATOMIC_IP_SSL_465]";
+    const LOG_ID = "[v10_HYBRID_TLS]";
+
+    // Use ENV vars or fallback to secure defaults
+    const host = process.env.SMTP_HOST || "smtp.gmail.com";
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+    const port = parseInt(process.env.SMTP_PORT) || 465;
+
+    console.log(`${LOG_ID} Attempting email to ${options.email} via ${host}:${port}...`);
 
     try {
-        console.log(`${LOG_ID} Resolving smtp.gmail.com...`);
-
-        let targetHost = "smtp.gmail.com";
-        try {
-            // Force resolve to IPv4
-            const addresses = await dns.resolve4("smtp.gmail.com");
-            if (addresses && addresses.length > 0) {
-                targetHost = addresses[0];
-                console.log(`${LOG_ID} Resolved to IPv4:`, targetHost);
-            }
-        } catch (dnsErr) {
-            console.warn(`${LOG_ID} DNS Resolve failed, falling back to hostname:`, dnsErr.message);
-        }
-
-        const transporter = nodemailer.createTransport({
-            host: targetHost,
-            port: 465,
-            secure: true, // Use SSL
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
+        const transporterConfigs = {
+            host: host,
+            port: port,
+            secure: port === 465, // True for 465, false for 587
+            auth: { user, pass },
             tls: {
-                servername: "smtp.gmail.com",
-                rejectUnauthorized: false
+                rejectUnauthorized: false, // Helps on cloud proxies
+                servername: "smtp.gmail.com"
             },
-            connectionTimeout: 30000, // 30 seconds
-            greetingTimeout: 30000,
-            socketTimeout: 30000
-        });
+            pool: true,
+            maxConnections: 1,
+            connectionTimeout: 20000, // 20s
+            socketTimeout: 30000     // 30s
+        };
 
-        const message = {
-            from: `"${process.env.FROM_NAME || 'TPO Portal'}" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
+        const transporter = nodemailer.createTransport(transporterConfigs);
+
+        const emailDetails = {
+            from: `"${process.env.FROM_NAME || 'TPO Portal'}" <${process.env.FROM_EMAIL || user}>`,
             to: options.email,
             subject: options.subject,
             text: options.message,
             html: options.html,
         };
 
-        console.log(`${LOG_ID} Sending email to ${options.email} via ${targetHost}:465...`);
-        const info = await transporter.sendMail(message);
+        const info = await transporter.sendMail(emailDetails);
         console.log(`${LOG_ID} SUCCESS! MessageId:`, info.messageId);
         return info;
     } catch (error) {
-        console.error(`${LOG_ID} ERROR:`, error);
-        throw new Error(`Email Error: ${error.message} (Code: ${error.code || 'N/A'})`);
+        console.error(`${LOG_ID} PRIMARY ATTEMPT FAILED:`, error.message);
+
+        // ATOMIC FALLBACK: If 465 failed, try 587 automatically
+        if (port === 465) {
+            console.log(`${LOG_ID} FALLBACK: Trying Port 587 (TLS)...`);
+            try {
+                const fallbackTransporter = nodemailer.createTransport({
+                    host: host,
+                    port: 587,
+                    secure: false,
+                    auth: { user, pass },
+                    tls: { rejectUnauthorized: false }
+                });
+                const info = await fallbackTransporter.sendMail({
+                    from: `"${process.env.FROM_NAME || 'TPO Portal'}" <${process.env.FROM_EMAIL || user}>`,
+                    to: options.email,
+                    subject: options.subject,
+                    html: options.html
+                });
+                console.log(`${LOG_ID} FALLBACK SUCCESS!`);
+                return info;
+            } catch (fallbackErr) {
+                console.error(`${LOG_ID} FALLBACK FAILED:`, fallbackErr.message);
+                throw new Error(`Email SMTP Error: Both ports 465/587 failed. Details: ${fallbackErr.message}`);
+            }
+        }
+
+        throw new Error(`Email Error: ${error.message}`);
     }
 };
 
