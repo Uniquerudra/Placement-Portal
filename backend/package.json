@@ -12,7 +12,7 @@
   "author": "Rudra",
   "license": "ISC",
   "engines": {
-    "node": ">=18"
+    "node": "20.x"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
