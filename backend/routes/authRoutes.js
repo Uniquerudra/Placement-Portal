@@ -286,4 +286,19 @@ router.post("/reset-password/:token", async (req, res) => {
   }
 });
 
+// Test email route
+router.get("/test-email", async (req, res) => {
+  try {
+    await sendEmail({
+      email: process.env.SMTP_USER,
+      subject: "PROJECT LIVE - Test Email Success!",
+      message: "If you are reading this, your email system is now 100% working on Render!",
+      html: "<h1>SUCCESS!</h1><p>Your TPO Portal email connection is now active.</p>"
+    });
+    res.json({ message: "Test Email Sent Successfully to yours-self!" });
+  } catch (err) {
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
+
 module.exports = router;
