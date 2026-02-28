@@ -33,13 +33,13 @@ const sendEmail = async (options) => {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            // Since we are using an IP address (potentially), we MUST provide the servername for TLS SNI
             tls: {
                 servername: "smtp.gmail.com",
                 rejectUnauthorized: false
             },
-            connectionTimeout: 10000,
-            greetingTimeout: 10000
+            connectionTimeout: 30000, // 30 seconds
+            greetingTimeout: 30000,
+            socketTimeout: 30000
         });
 
         const message = {
