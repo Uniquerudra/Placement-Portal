@@ -8,8 +8,8 @@ const sendEmail = async (options) => {
     try {
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            secure: process.env.SMTP_PORT == 465,
+            port: parseInt(process.env.SMTP_PORT) || 465,
+            secure: parseInt(process.env.SMTP_PORT) === 465,
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
@@ -37,8 +37,8 @@ const sendEmail = async (options) => {
         console.log("Email sent successfully: %s", info.messageId);
         return info;
     } catch (error) {
-        console.error("Error sending email:", error.message);
-        throw new Error(error.message); // Show raw error for debugging
+        console.error("EMAIL ERROR DETAILS:", error.stack);
+        throw new Error(`SMTP Error: ${error.message}${error.code ? ' (Code: ' + error.code + ')' : ''}`);
     }
 };
 
