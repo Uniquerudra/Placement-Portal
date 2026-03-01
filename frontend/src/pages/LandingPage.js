@@ -44,70 +44,72 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="hero" id="hero">
-        <div className="hero-text">
-          <div className="hero-badge">
-            <span className="hero-badge-dot" />
-            Training & Placement Cell • AKGEC
-          </div>
-          <h1>Empowering Futures, <br />Connecting Dreams</h1>
-          <p>
-            Bridging the gap between ambitious students and world-class organizations.
-            Automated placement workflow for higher efficiency and better results.
+      {/* HERO - Dark Theme with Glowing Effect */}
+      <section className="hero-dark" id="hero">
+        <div className="glow-ring"></div>
+        <div className="glow-ring glow-ring-2"></div>
+        
+        <div className="hero-content">
+          <h1 className="hero-title">
+            Campus Recruitment<br />
+            <span className="gradient-text">& Training Platform</span>
+          </h1>
+          <p className="hero-subtitle">
+            Connect top talent with industry leaders. Streamline placements with 
+            intelligent automation and real-time analytics.
           </p>
 
-          <div className="hero-actions">
-            <button className="glow-btn" onClick={() => navigate("/login")}>
-              Get Started
+          <div className="hero-cta">
+            <button className="btn-glow" onClick={() => navigate("/login")}>
+              Get Started <span>→</span>
             </button>
-            <button className="outline-btn" onClick={() => scrollToSection("notices")}>
-              View Drives
+            <button className="btn-outline-light" onClick={() => scrollToSection("stats")}>
+              View Analytics
             </button>
           </div>
 
-          <div className="hero-trust">
-            <p>Trusted by industrial leaders</p>
-            <div className="trust-icons">
-              <span>Microsoft</span>
-              <span>Google</span>
-              <span>Amazon</span>
-              <span>Adobe</span>
+          <div className="hero-stats-row">
+            <div className="hero-stat-item">
+              <span className="stat-number">250+</span>
+              <span className="stat-label">Companies</span>
+            </div>
+            <div className="hero-stat-item">
+              <span className="stat-number">1200+</span>
+              <span className="stat-label">Placements</span>
+            </div>
+            <div className="hero-stat-item">
+              <span className="stat-number">45L</span>
+              <span className="stat-label">Highest Package</span>
             </div>
           </div>
         </div>
 
-        <div className="hero-visual">
-          <div className="hero-card">
-            <div className="hero-card-header">
-              <div className="hero-card-title">Placement Highlights 2026</div>
-              <span className="hero-chip">Live</span>
-            </div>
-
-            <div className="hero-card-metrics">
-              <div className="metric-item">
-                <div className="hero-metric-label">Active Drives</div>
-                <div className="hero-metric-value">12</div>
-                <div className="hero-metric-sub">+3 today</div>
-              </div>
-              <div className="metric-item">
-                <div className="hero-metric-label">Offers Made</div>
-                <div className="hero-metric-value">450+</div>
-                <div className="hero-metric-sub">Across 50+ companies</div>
-              </div>
-            </div>
-
-            <div className="hero-card-footer">
-              <div className="user-stack">
-                <img src="https://i.pravatar.cc/150?u=1" alt="u1" />
-                <img src="https://i.pravatar.cc/150?u=2" alt="u2" />
-                <img src="https://i.pravatar.cc/150?u=3" alt="u3" />
-                <span>+800 students joined</span>
-              </div>
-            </div>
+        {/* Feature Cards */}
+        <div className="feature-cards">
+          <div className="feature-card" onClick={() => navigate("/login")}>
+            <div className="feature-icon">👤</div>
+            <h3>Student Portal</h3>
+            <p>Apply to drives, track applications, and analyze your resume</p>
+            <span className="feature-link">Login as Student →</span>
           </div>
-          <div className="hero-pulse" />
-          <div className="floating-blob" />
+          <div className="feature-card" onClick={() => navigate("/login")}>
+            <div className="feature-icon">📊</div>
+            <h3>TPO Dashboard</h3>
+            <p>Manage drives, review applications, and generate reports</p>
+            <span className="feature-link">Login as TPO →</span>
+          </div>
+          <div className="feature-card" onClick={() => navigate("/student/resume-analyzer")}>
+            <div className="feature-icon">🤖</div>
+            <h3>AI Resume Analyzer</h3>
+            <p>Get ATS scores and keyword matching for better results</p>
+            <span className="feature-link">Try Analyzer →</span>
+          </div>
+          <div className="feature-card" onClick={() => navigate("/login")}>
+            <div className="feature-icon">⚙️</div>
+            <h3>Admin Panel</h3>
+            <p>Manage users, view analytics, and control system settings</p>
+            <span className="feature-link">Login as Admin →</span>
+          </div>
         </div>
       </section>
 
@@ -145,7 +147,7 @@ const LandingPage = () => {
       <section className="recruiters" id="recruiters">
         <div className="section-header">
           <h2>Top Global Recruiters</h2>
-          <p>Our students are working in the world's most prestigious organizations.</p>
+          <p>Our student are working in the world's most prestigious organizations.</p>
         </div>
         <div className="recruiter-logos">
           <div className="logo-wrapper"><img src="https://cdn4.iconfinder.com/data/icons/logos-brands-7/512/google_logo-google_icongoogle-1024.png" alt="Google" /></div>

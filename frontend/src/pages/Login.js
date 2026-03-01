@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import API from "../api";
-import "../css/Auth.css";
+import "../css/AuthDark.css";
 
 function Login() {
   const navigate = useNavigate();
@@ -93,8 +93,12 @@ function Login() {
 
   return (
     <div className="auth-container">
+      <button className="btn-back" onClick={() => navigate("/")}>
+        ← Back
+      </button>
       <form className="auth-box" onSubmit={handleLogin}>
-        <h2>Login to TPO Portal</h2>
+        <h2>Welcome Back</h2>
+        <p className="auth-subtitle">Sign in to access your TPO Portal dashboard</p>
         {error ? (
           <div className="auth-error" role="alert" aria-live="polite">
             {error}
@@ -158,7 +162,7 @@ function Login() {
         <button
           type="button"
           onClick={handleGoogleLogin}
-          className="google-login-btn no-hover-color"
+          className="google-login-btn"
           disabled={loading || googleLoading}
         >
           <svg

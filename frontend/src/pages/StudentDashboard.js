@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
-import "../css/Dashboard.css";
+import "../css/StudentDashboardDark.css";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -135,13 +135,13 @@ const StudentDashboard = () => {
   return (
     <div className="dashboard-container student-dashboard">
       <button className="btn-back" onClick={() => navigate("/")}>
-        ← Go Back
+        ← Back to Home
       </button>
       <div className="dashboard-header">
         <div className="header-left">
           <h2>Student Dashboard</h2>
           <p className="dashboard-subtitle">
-            View active placement drives, apply, and track your status.
+            View active placement drives, apply, and track the status.
           </p>
         </div>
         <div className="header-right">
@@ -172,55 +172,52 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      <h3 className="table-section-title">Available Drives</h3>
+      <h3 className="section-title-dark">Available Drives</h3>
       {loading ? (
-        <p>Loading...</p>
+        <div className="loading-text">Loading...</div>
       ) : (
-        <div className="dashboard-cards">
+        <div className="drives-grid">
           {drives.map((drive) => {
             const isApplied = appliedDrives.includes(drive._id);
             return (
-              <div key={drive._id} className="card">
-                <h3>{drive.company}</h3>
-                <p><b>Role:</b> {drive.role}</p>
-                <p><b>Package:</b> {drive.package}</p>
-                <p><b>Location:</b> {drive.location}</p>
-                {drive.eligibilityCriteria && (
-                  <p>
-                    <b>Eligibility:</b> {drive.eligibilityCriteria}
-                  </p>
-                )}
-                {drive.jobDescription && (
-                  <p>
-                    <b>Job:</b> {drive.jobDescription}
-                  </p>
-                )}
-                {drive.rounds && (
-                  <p>
-                    <b>Rounds:</b> {drive.rounds}
-                  </p>
-                )}
-                {drive.additionalNotes && (
-                  <p>
-                    <b>Notes:</b> {drive.additionalNotes}
-                  </p>
-                )}
-
-                <button
-                  className={isApplied ? "btn-disabled" : "btn-primary"}
-                  disabled={isApplied}
-                  onClick={() => openApplyForm(drive)}
-                >
-                  {isApplied ? "Applied ✅" : "Apply Now"}
-                </button>
+              <div key={drive._id} className="drive-card-dark">
+                <div className="drive-card-image">
+                  <div className="drive-card-gradient"></div>
+                  <span className="drive-card-badge">{drive.package} LPA</span>
+                </div>
+                <div className="drive-card-content">
+                  <h3>{drive.company}</h3>
+                  <p className="drive-role">{drive.role}</p>
+                  <p className="drive-location">{drive.location}</p>
+                  <div className="drive-tags">
+                    {drive.eligibilityCriteria && (
+                      <span className="tag">{drive.eligibilityCriteria}</span>
+                    )}
+                    {drive.rounds && <span className="tag">{drive.rounds}</span>}
+                  </div>
+                  <button
+                    className={isApplied ? "btn-applied" : "btn-apply"}
+                    disabled={isApplied}
+                    onClick={() => openApplyForm(drive)}
+                  >
+                    {isApplied ? (
+                      <>
+                        <span>✓</span> Applied
+                      </>
+                    ) : (
+                      "Apply Now"
+                    )}
+                  </button>
+                </div>
               </div>
             );
           })}
         </div>
       )}
 
-      <h3 className="table-section-title">My Recent Applications</h3>
-      <table className="dashboard-table">
+      <h3 className="section-title-dark">My Recent Applications</h3>
+      <div className="table-container">
+        <table className="dashboard-table-student">
         <thead>
           <tr>
             <th>Company</th>
@@ -237,8 +234,10 @@ const StudentDashboard = () => {
                 <td>{app.drive?.company || "—"}</td>
                 <td>{app.drive?.role || "—"}</td>
                 <td>{app.drive?.package ? `${app.drive.package} LPA` : "—"}</td>
-                <td style={{ fontWeight: 700 }}>
-                  {(app.status || "applied").toUpperCase()}
+                <td>
+                  <span className={`status-badge status-${app.status || 'applied'}`}>
+                    {app.status || "applied"}
+                  </span>
                 </td>
                 <td>
                   {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : "—"}
@@ -253,7 +252,8 @@ const StudentDashboard = () => {
             </tr>
           )}
         </tbody>
-      </table>
+        </table>
+      </div>
 
       {selectedDrive && (
         <div className="apply-modal-backdrop">

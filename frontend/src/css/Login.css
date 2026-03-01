@@ -113,7 +113,7 @@
 /* ANIMATION */
 
 .animate {
-  animation: fadeIn 0.8s ease;
+  animation: fadein 0.8s ease;
 }
 
 @keyframes fadeIn {

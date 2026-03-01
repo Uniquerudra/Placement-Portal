@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../api";
-import "../../css/Dashboard.css";
-import "../../css/ResumeAnalyzer.css";
+import "../../css/ResumeAnalyzerModern.css";
 
 function ScoreBar({ label, value, max }) {
   const pct = max ? Math.round((value / max) * 100) : 0;

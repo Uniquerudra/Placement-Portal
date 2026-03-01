@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../api";
-import "../../css/Dashboard.css";
+import "../../css/TPODashboardDark.css";
 
 const API_URL_FALLBACK = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : "http://localhost:5000";
 const BACKEND_ORIGIN = process.env.REACT_APP_BACKEND_ORIGIN || API_URL_FALLBACK;
@@ -130,28 +130,36 @@ function TPODashboard() {
       </div>
 
       {/* 🔹 DRIVES SECTION */}
-      <h3 className="table-section-title">All Drives</h3>
-      <div className="dashboard-cards">
+      <h3 className="section-title-dark">All Drives</h3>
+      <div className="drives-grid">
         {drives.map((drive) => (
-          <div className="card" key={drive._id}>
-            <h3>{drive.company}</h3>
-            <p>Role: {drive.role}</p>
-            <p>Package: {drive.package} LPA</p>
-            <p>Location: {drive.location}</p>
-            {drive.eligibilityCriteria && (
-              <p>Eligibility: {drive.eligibilityCriteria}</p>
-            )}
-            {drive.jobDescription && <p>Job: {drive.jobDescription}</p>}
-            {drive.rounds && <p>Rounds: {drive.rounds}</p>}
-            {drive.deadline && <p>Deadline: {drive.deadline}</p>}
-            {drive.contactEmail && <p>Contact: {drive.contactEmail}</p>}
+          <div className="drive-card-dark" key={drive._id}>
+            <div className="drive-card-image">
+              <div className="drive-card-gradient"></div>
+              <span className="drive-card-badge">{drive.package} LPA</span>
+            </div>
+            <div className="drive-card-content">
+              <h3>{drive.company}</h3>
+              <p className="drive-role">{drive.role}</p>
+              <p className="drive-location">📍 {drive.location}</p>
+              <div className="drive-tags">
+                {drive.eligibilityCriteria && (
+                  <span className="tag">{drive.eligibilityCriteria}</span>
+                )}
+                {drive.rounds && <span className="tag">{drive.rounds}</span>}
+                {drive.deadline && (
+                  <span className="tag tag-deadline">⏰ {new Date(drive.deadline).toLocaleDateString()}</span>
+                )}
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
       {/* 🔹 APPLICATIONS SECTION */}
       <h3 className="table-section-title">Student Applications</h3>
-      <table className="dashboard-table">
+      <div className="table-container">
+        <table className="dashboard-table">
         <thead>
           <tr>
             <th>Student</th>
@@ -178,7 +186,11 @@ function TPODashboard() {
               <td>{app.cgpa || "—"}</td>
               <td>{app.yearOfPassing || "—"}</td>
               <td>{app.skills || "—"}</td>
-              <td>{app.status}</td>
+              <td>
+                <span className={`status-badge status-${app.status}`}>
+                  {app.status}
+                </span>
+              </td>
               <td>
                 {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : "—"}
               </td>
@@ -255,7 +267,8 @@ TPO Cell`;
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }

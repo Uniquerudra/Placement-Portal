@@ -1,9 +1,8 @@
 // frontend/src/pages/admin/AdminDashboard.js
-// frontend/src/pages/admin/AdminDashboard.js
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
-import "../css/Dashboard.css";
+import "../css/AdminDashboardDark.css";
 
 const BACKEND_ORIGIN = process.env.REACT_APP_BACKEND_ORIGIN || "http://localhost:5000";
 
