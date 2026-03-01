@@ -146,16 +146,16 @@ const LandingPage = () => {
       {/* RECRUITERS */}
       <section className="recruiters" id="recruiters">
         <div className="section-header">
-          <h2>Top Global Recruiters</h2>
+          <h2>Top Globals Recruiters</h2>
           <p>Our student are working in the world's most prestigious organizations.</p>
         </div>
         <div className="recruiter-logos">
-          <div className="logo-wrapper"><img src="https://cdn4.iconfinder.com/data/icons/logos-brands-7/512/google_logo-google_icongoogle-1024.png" alt="Google" /></div>
-          <div className="logo-wrapper"><img src="https://s3-alpha.figma.com/hub/file/2747494711/31b6ad5c-b404-4086-a685-89b1d5294f1c-cover.png" alt="Microsoft" /></div>
-          <div className="logo-wrapper"><img src="https://tse2.mm.bing.net/th/id/OIP.YdkQGmhB9c2Sr84FeDD9egHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Amazon" /></div>
-          <div className="logo-wrapper"><img src="https://tse4.mm.bing.net/th/id/OIP.MPHAVL52hadir7pe0HszoAHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Adobe" /></div>
-          <div className="logo-wrapper"><img src="https://tse2.mm.bing.net/th/id/OIP.idB_-eo5pNgOG8Ker3jEpgHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Flipkart" /></div>
-          <div className="logo-wrapper"><img src="https://tse1.mm.bing.net/th/id/OIP.4Czaum8sTdcx4p5gytXDMQHaEK?cb=defcache2&defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Paytm" /></div>
+          <div className="logo-wrapper"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" /></div>
+          <div className="logo-wrapper"><img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" /></div>
+          <div className="logo-wrapper amazon-logo"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" /></div>
+          <div className="logo-wrapper"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Adobe_Corporate_logo.svg" alt="Adobe" /></div>
+          <div className="logo-wrapper myntra-logo"><img src="https://cdn.freelogovectors.net/wp-content/uploads/2021/02/myntra-logo-freelogovectors.net_.png" alt="Myntra" /></div>
+          <div className="logo-wrapper"><img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" alt="Paytm" /></div>
         </div>
       </section>
 
