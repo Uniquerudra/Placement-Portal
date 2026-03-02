@@ -103,10 +103,18 @@ const sendViaSMTP = async (options, LOG_ID) => {
     const mailOptions = {
         from: `"${(process.env.FROM_NAME || 'TPO Portal').trim()}" <${user}>`,
         to: options.email,
+        replyTo: user, // Added Reply-To
         subject: options.subject,
         text: options.message,
         html: options.html,
+        // Security Headers to reduce Spam flagging
+        headers: {
+            'X-Priority': '1 (Highest)',
+            'X-MSMail-Priority': 'High',
+            'Importance': 'High'
+        }
     };
+
 
     try {
         const result = await transporter.sendMail(mailOptions);

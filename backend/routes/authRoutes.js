@@ -241,22 +241,36 @@ router.post("/forgot-password", async (req, res) => {
         subject: "Password Reset Token",
         message,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 25px; color: #1f2937;">
-            <h2 style="color: #4f46e5; margin-bottom: 20px;">Password Reset Request</h2>
-            <p>You requested a password reset for your TPO Portal account.</p>
-            <p>Please click the button below to reset your password. This link is valid for <strong>10 minutes</strong>.</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);">Reset My Password</a>
+          <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+            <div style="background-color: #4f46e5; padding: 20px; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">TPO Placement Portal</h1>
             </div>
-            <p style="font-size: 0.9em; color: #6b7280; margin-top: 20px;">If you did not request this, please ignore this email or contact support if you have concerns.</p>
-            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 25px 0;" />
-            <p style="font-size: 0.8em; color: #9ca3af; text-align: center;">TPO Placement Portal &bull; Secure Password Reset</p>
+            <div style="padding: 30px; color: #1e293b; line-height: 1.6;">
+              <h2 style="color: #4f46e5; margin-top: 0;">Password Reset Request</h2>
+              <p>Hello,</p>
+              <p>We received a request to reset the password for your account. If you made this request, please click the button below to set a new password:</p>
+              <div style="text-align: center; margin: 35px 0;">
+                <a href="${resetUrl}" style="display: inline-block; padding: 14px 28px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Reset My Password</a>
+              </div>
+              <p style="font-size: 0.9em; color: #64748b;">This secure link is valid for <b>10 minutes</b> only. If you don't use it within this timeframe, you will need to request another reset.</p>
+              <p style="font-size: 0.9em; color: #64748b; margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                <b>Security Notice:</b> If you did not request this password reset, no further action is required. Your account is still secure.
+              </p>
+            </div>
+            <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; ${new Date().getFullYear()} TPO Placement Portal. All rights reserved.</p>
+            </div>
           </div>
         `,
+
       });
 
       console.log(`[AUTH] Reset email delivered via ${result.service || 'unknown service'}`);
-      res.status(200).json({ message: "Reset link sent to your email!" });
+      res.status(200).json({
+        message: "Reset link sent to your email!",
+        service: result.service, // Tells user if SMTP or SendGrid was used
+        sentTo: user.email
+      });
     } catch (err) {
       console.error("[AUTH] FORGOT PASSWORD EMAIL ERROR:", err.message);
       user.resetPasswordToken = undefined;
