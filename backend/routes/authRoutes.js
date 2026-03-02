@@ -255,8 +255,9 @@ router.post("/forgot-password", async (req, res) => {
     try {
       const result = await sendEmail({
         email: user.email,
-        subject: "Password Reset Token",
+        subject: "Action Required: Reset your TPO Portal password",
         message,
+
         html: `
           <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
             <div style="background-color: #4f46e5; padding: 20px; text-align: center;">

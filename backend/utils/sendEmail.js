@@ -93,38 +93,44 @@ const sendViaSMTP = async (options, LOG_ID) => {
         auth: { user, pass },
         tls: {
             rejectUnauthorized: false,
-            // STARTTLS (587) sometimes likes this
             minVersion: 'TLSv1.2'
         },
         connectionTimeout: 10000,
-        greetingTimeout: 10000
+        greetingTimeout: 10000,
+        debug: false,
+        logger: false
     });
+
+    // Generate a unique Message-ID to look more legitimate
+    const messageId = `<${Date.now()}.${Math.random().toString(36).substring(7)}@${host.split('.').slice(-2).join('.')}>`;
 
     const mailOptions = {
         from: `"${(process.env.FROM_NAME || 'TPO Portal').trim()}" <${user}>`,
         to: options.email,
-        replyTo: user, // Added Reply-To
+        replyTo: user,
         subject: options.subject,
         text: options.message,
         html: options.html,
-        // Security Headers to reduce Spam flagging
+        messageId: messageId,
         headers: {
             'X-Priority': '1 (Highest)',
             'X-MSMail-Priority': 'High',
-            'Importance': 'High'
+            'Importance': 'High',
+            'X-Mailer': 'TPOPortal-Mailer',
+            'Date': new Date().toUTCString()
         }
     };
 
-
     try {
         const result = await transporter.sendMail(mailOptions);
-        console.log(`${LOG_ID} Email sent via SMTP! MessageId: ${result.messageId}`);
+        console.log(`${LOG_ID} Email successfully delivered to SMTP server. MsgID: ${result.messageId}`);
         return { ...result, service: 'SMTP' };
     } catch (error) {
-        console.error(`${LOG_ID} SMTP SEND ERROR:`, error.message);
+        console.error(`${LOG_ID} SMTP SEND ERROR [${error.code}]:`, error.message);
         throw new Error(`SMTP Transport failed: ${error.message}`);
     }
 };
 
 module.exports = sendEmail;
+
 
