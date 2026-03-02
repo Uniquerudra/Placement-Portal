@@ -172,15 +172,28 @@ router.get("/forgot-password", (req, res) => {
 // Forgot Password route (POST)
 router.post("/forgot-password", async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) {
+    const { email: rawEmail } = req.body;
+    if (!rawEmail) {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    const user = await User.findOne({ email });
+    const email = rawEmail.toLowerCase().trim();
+    console.log(`[AUTH] Forgot password request for: ${email}`);
+
+    // Case-insensitive lookup
+    const user = await User.findOne({ email: { $regex: new RegExp(`^${email}$`, "i") } });
 
     if (!user) {
-      return res.status(404).json({ message: "No user found with this email" });
+      console.log(`[AUTH] No user found for: ${email}`);
+      return res.status(404).json({ message: "No account found with this email" });
+    }
+
+    // Check if user is a Google-only account
+    if (!user.password && user.googleId) {
+      console.log(`[AUTH] Google account detected for: ${email}`);
+      return res.status(400).json({
+        message: "This account uses Google Sign-In. Please log in using the 'Continue with Google' button."
+      });
     }
 
     // Generate reset token
@@ -195,57 +208,71 @@ router.post("/forgot-password", async (req, res) => {
 
     await user.save();
 
-    // Choose the best URL: Origin from browser, then .env, then local fallback
-    // Fix: If origin is the backend itself, fallback to envUrl
-    const origin = req.headers.origin;
+    // Determine Frontend URL
+    const origin = req.headers.origin; // e.g. http://localhost:3008 or https://portal-iaxw.vercel.app
     const envUrl = process.env.FRONTEND_URL;
+
+    // Fallback logic: prefer origin (browser current site), then envUrl, then default localhost:3000
     let frontendUrl = origin || envUrl || "http://localhost:3000";
 
-    // Safety check: if frontendUrl somehow contains '/api', it's likely the backend URL
-    if (frontendUrl.includes("/api")) {
-      frontendUrl = envUrl || "http://localhost:3000";
+    // Strip trailing slash if any
+    frontendUrl = frontendUrl.replace(/\/$/, "");
+
+    // Safety check: if frontendUrl somehow contains '/api', it's likely the backend URL, so we fallback
+    if (frontendUrl.includes("/api") || frontendUrl.includes("render.com")) {
+      console.log(`[AUTH] Warning: origin/FRONTEND_URL seems to be backend (${frontendUrl}), falling back.`);
+      frontendUrl = envUrl ? envUrl.replace(/\/$/, "") : "http://localhost:3000";
     }
 
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
-    console.log("DEBUG: Request Origin:", origin);
-    console.log("DEBUG: Env FRONTEND_URL:", envUrl);
-    console.log("DEBUG: Final Reset URL:", resetUrl);
+    console.log(`[AUTH] Client Origin: ${origin || 'None'}`);
+    console.log(`[AUTH] Using Frontend: ${frontendUrl}`);
+    console.log(`[AUTH] Reset Link: ${resetUrl}`);
+
+
+    console.log(`[AUTH] Sending reset email to: ${user.email} (Reset Link generated)`);
 
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please click the link below to reset your password:\n\n ${resetUrl}`;
 
     try {
-      await sendEmail({
+      const result = await sendEmail({
         email: user.email,
         subject: "Password Reset Token",
         message,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Password Reset Request</h2>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 25px; color: #1f2937;">
+            <h2 style="color: #4f46e5; margin-bottom: 20px;">Password Reset Request</h2>
             <p>You requested a password reset for your TPO Portal account.</p>
-            <p>Please click the button below to reset your password. This link is valid for 10 minutes.</p>
-            <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Reset Password</a>
-            <p style="margin-top: 20px;">If you did not request this, please ignore this email.</p>
+            <p>Please click the button below to reset your password. This link is valid for <strong>10 minutes</strong>.</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);">Reset My Password</a>
+            </div>
+            <p style="font-size: 0.9em; color: #6b7280; margin-top: 20px;">If you did not request this, please ignore this email or contact support if you have concerns.</p>
+            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 25px 0;" />
+            <p style="font-size: 0.8em; color: #9ca3af; text-align: center;">TPO Placement Portal &bull; Secure Password Reset</p>
           </div>
         `,
       });
 
-      res.status(200).json({ message: "Email sent" });
+      console.log(`[AUTH] Reset email delivered via ${result.service || 'unknown service'}`);
+      res.status(200).json({ message: "Reset link sent to your email!" });
     } catch (err) {
-      console.error("FORGOT PASSWORD EMAIL ERROR:", err);
+      console.error("[AUTH] FORGOT PASSWORD EMAIL ERROR:", err.message);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
       await user.save();
       return res.status(500).json({
-        message: "Email could not be sent",
+        message: "Failed to send reset email. Contact administrator.",
         error: err.message
       });
     }
   } catch (err) {
-    console.error("FORGOT PASSWORD SERVER ERROR:", err);
+    console.error("[AUTH] FORGOT PASSWORD SERVER ERROR:", err);
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
+
 
 // Reset Password route (GET - for accidental link access)
 router.get("/reset-password/:token", (req, res) => {
@@ -289,16 +316,27 @@ router.post("/reset-password/:token", async (req, res) => {
 // Test email route
 router.get("/test-email", async (req, res) => {
   try {
-    await sendEmail({
-      email: process.env.SMTP_USER,
+    const result = await sendEmail({
+      email: process.env.SMTP_USER || "test@example.com",
       subject: "PROJECT LIVE - Test Email Success!",
-      message: "If you are reading this, your email system is now 100% working on Render!",
-      html: "<h1>SUCCESS!</h1><p>Your TPO Portal email connection is now active.</p>"
+      message: `If you are reading this, your email system is now working! Service used: ${process.env.SENDGRID_API_KEY ? 'SendGrid (Candidate)' : 'SMTP'}. Recipient: ${process.env.SMTP_USER}`,
+      html: `<h1>SUCCESS!</h1><p>Your TPO Portal email connection is now active.</p><p><b>Method:</b> ${process.env.SENDGRID_API_KEY ? 'SendGrid' : 'SMTP'}</p>`
     });
-    res.json({ message: "Test Email Sent Successfully to yours-self!" });
+    res.json({
+      message: "Test Email Sent Successfully!",
+      service: result.service,
+      to: process.env.SMTP_USER,
+      details: "Check your inbox and spam folder."
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message, stack: err.stack });
+    console.error("[AUTH] Test email failed:", err);
+    res.status(500).json({
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+      hint: "Check your SMTP_USER and SMTP_PASS in environment variables."
+    });
   }
 });
+
 
 module.exports = router;
