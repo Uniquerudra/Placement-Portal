@@ -40,18 +40,35 @@ router.post("/register", async (req, res) => {
         subject: "Welcome to TPO Portal!",
         message: `Hello ${user.name},\n\nYour account has been successfully created on the TPO Portal. You can now log in and apply for placement drives.\n\nBest regards,\nTPO Team`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #4f46e5;">Welcome to TPO Portal!</h2>
-            <p>Hello <strong>${user.name}</strong>,</p>
-            <p>Your account has been successfully created on the TPO Portal. You can now log in and explore the latest placement opportunities.</p>
-            <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p style="margin: 0;"><strong>Role:</strong> ${user.role.toUpperCase()}</p>
-              <p style="margin: 5px 0 0 0;"><strong>Email:</strong> ${user.email}</p>
+          <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+            <div style="background-color: #4f46e5; padding: 20px; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">TPO Placement Portal</h1>
             </div>
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Login to Portal</a>
-            <p style="margin-top: 20px; font-size: 0.8em; color: #6b7280;">If you did not create this account, please contact the TPO administrator.</p>
+            <div style="padding: 30px; color: #1e293b; line-height: 1.6;">
+              <h2 style="color: #4f46e5; margin-top: 0;">Welcome to the Portal!</h2>
+              <p>Hello <b>${user.name}</b>,</p>
+              <p>Your account has been successfully created. You can now access all placement features, apply for drives, and manage your student profile.</p>
+              
+              <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 25px 0; border: 1px solid #edf2f7;">
+                <p style="margin: 0; color: #64748b; font-size: 14px;"><b>Account Details:</b></p>
+                <p style="margin: 10px 0 5px 0;"><b>Role:</b> ${user.role.toUpperCase()}</p>
+                <p style="margin: 0;"><b>Email:</b> ${user.email}</p>
+              </div>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" style="display: inline-block; padding: 14px 28px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Login to Dashboard</a>
+              </div>
+              
+              <p style="font-size: 0.85em; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                If you did not request this account, please ignore this email or contact the TPO administrator.
+              </p>
+            </div>
+            <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; ${new Date().getFullYear()} TPO Placement Portal. All rights reserved.</p>
+            </div>
           </div>
         `,
+
       });
     } catch (emailErr) {
       console.error("Welcome email failed:", emailErr.message);
