@@ -80,11 +80,11 @@ function TPODashboard() {
 
   return (
     <div className="dashboard-container tpo-dashboard">
-      <button className="btn-back" onClick={() => navigate("/")}>
-        ← Go Back
-      </button>
       <div className="dashboard-header">
         <div className="header-left">
+          <button className="btn-back" onClick={() => navigate("/")}>
+            ← Go Back
+          </button>
           <h2>TPO Dashboard</h2>
           <p className="dashboard-subtitle">
             Manage campus drives and track student applications in real time.
@@ -160,67 +160,67 @@ function TPODashboard() {
       <h3 className="table-section-title">Student Applications</h3>
       <div className="table-container">
         <table className="dashboard-table">
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Email</th>
-            <th>Company</th>
-            <th>Role</th>
-            <th>CGPA</th>
-            <th>YOP</th>
-            <th>Skills</th>
-            <th>Status</th>
-            <th>Applied</th>
-            <th>Resume</th>
-            <th>Email</th>
-            <th>Update</th>
-          </tr>
-        </thead>
-        <tbody>
-          {applications.map((app) => (
-            <tr key={app._id}>
-              <td>{app.studentName}</td>
-              <td>{app.email}</td>
-              <td>{app.driveName}</td>
-              <td>{app.role}</td>
-              <td>{app.cgpa || "—"}</td>
-              <td>{app.yearOfPassing || "—"}</td>
-              <td>{app.skills || "—"}</td>
-              <td>
-                <span className={`status-badge status-${app.status}`}>
-                  {app.status}
-                </span>
-              </td>
-              <td>
-                {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : "—"}
-              </td>
-              <td>
-                {app.resumeUrl ? (
-                  <a
-                    href={
-                      app.resumeUrl.startsWith("http")
-                        ? app.resumeUrl
-                        : `${BACKEND_ORIGIN.replace(/\/$/, "")}/${app.resumeUrl.replace(/\\/g, '/').replace(/^\//, '')}`
-                    }
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: "#2563eb", fontWeight: 600 }}
-                  >
-                    View
-                  </a>
-                ) : (
-                  "—"
-                )}
-              </td>
-              <td>
-                {app.email ? (
-                  <button
-                    className="btn-secondary"
-                    type="button"
-                    onClick={() => {
-                      const subject = `Next Round Details - ${app.driveName} (${app.role})`;
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Email</th>
+              <th>Company</th>
+              <th>Role</th>
+              <th>CGPA</th>
+              <th>YOP</th>
+              <th>Skills</th>
+              <th>Status</th>
+              <th>Applied</th>
+              <th>Resume</th>
+              <th>Email</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody>
+            {applications.map((app) => (
+              <tr key={app._id}>
+                <td>{app.studentName}</td>
+                <td>{app.email}</td>
+                <td>{app.driveName}</td>
+                <td>{app.role}</td>
+                <td>{app.cgpa || "—"}</td>
+                <td>{app.yearOfPassing || "—"}</td>
+                <td>{app.skills || "—"}</td>
+                <td>
+                  <span className={`status-badge status-${app.status}`}>
+                    {app.status}
+                  </span>
+                </td>
+                <td>
+                  {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : "—"}
+                </td>
+                <td>
+                  {app.resumeUrl ? (
+                    <a
+                      href={
+                        app.resumeUrl.startsWith("http")
+                          ? app.resumeUrl
+                          : `${BACKEND_ORIGIN.replace(/\/$/, "")}/${app.resumeUrl.replace(/\\/g, '/').replace(/^\//, '')}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ color: "#2563eb", fontWeight: 600 }}
+                    >
+                      View
+                    </a>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+                <td>
+                  {app.email ? (
+                    <button
+                      className="btn-secondary"
+                      type="button"
+                      onClick={() => {
+                        const subject = `Next Round Details - ${app.driveName} (${app.role})`;
 
-                      const body = `Dear ${app.studentName},
+                        const body = `Dear ${app.studentName},
 
 You have been shortlisted for the next round for ${app.driveName} - ${app.role}.
 
@@ -232,41 +232,41 @@ Please find the details below:
 Regards,
 TPO Cell`;
 
-                      // ✅ Gmail (Chrome) compose link
-                      const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
-                        app.email
-                      )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                        // ✅ Gmail (Chrome) compose link
+                        const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+                          app.email
+                        )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-                      const newTab = window.open(gmailURL, "_blank");
+                        const newTab = window.open(gmailURL, "_blank");
 
-                      // 🔁 Fallback → default mail client (mailto)
-                      if (!newTab) {
-                        window.location.href = `mailto:${app.email}?subject=${encodeURIComponent(
-                          subject
-                        )}&body=${encodeURIComponent(body)}`;
-                      }
-                    }}
+                        // 🔁 Fallback → default mail client (mailto)
+                        if (!newTab) {
+                          window.location.href = `mailto:${app.email}?subject=${encodeURIComponent(
+                            subject
+                          )}&body=${encodeURIComponent(body)}`;
+                        }
+                      }}
+                    >
+                      Email
+                    </button>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+                <td>
+                  <select
+                    value={app.status}
+                    onChange={(e) => updateStatus(app._id, e.target.value)}
                   >
-                    Email
-                  </button>
-                ) : (
-                  "—"
-                )}
-              </td>
-              <td>
-                <select
-                  value={app.status}
-                  onChange={(e) => updateStatus(app._id, e.target.value)}
-                >
-                  <option value="applied">Applied</option>
-                  <option value="shortlisted">Shortlisted</option>
-                  <option value="selected">Selected</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+                    <option value="applied">Applied</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="selected">Selected</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </div>

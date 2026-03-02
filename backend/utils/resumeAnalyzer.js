@@ -219,8 +219,120 @@ async function extractResumeTextFromBuffer(buffer, originalName) {
   throw err;
 }
 
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+async function analyzeWithGemini({ resumeText, jobDescription = "" }) {
+  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+    return {
+      geminiAnalysis: null,
+      error: "Gemini API key is not configured. Please add it to your .env file.",
+    };
+  }
+
+  // ... (prompt code)
+  const prompt = `
+    Analyze the following resume text and provide:
+    1. A concise summary of the candidate's core strengths.
+    2. Specific suggestions for improvement (formatting, content, impact).
+    3. Better interview preparation tips based on their experience and skills.
+    4. If a Job Description is provided, how should they tailor their resume for this role?
+
+    Return the results in a CLEAR, STRUCTURED JSON format using exactly these keys:
+    {
+      "summary": "...",
+      "suggestions": ["...", "..."],
+      "interviewPrep": ["...", "..."],
+      "tailoringTips": ["...", "..."] 
+    }
+
+    RESUME TEXT:
+    ${resumeText}
+
+    JOB DESCRIPTION: 
+    ${jobDescription || "Not provided"}
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+
+    // Cleaning the response if Gemini wraps it in markdown code blocks
+    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    try {
+      const parsed = JSON.parse(text);
+      return { geminiAnalysis: parsed, error: null };
+    } catch (parseError) {
+      console.error("Gemini Response Parsing Error:", parseError, "Response:", text);
+      return {
+        geminiAnalysis: {
+          summary: text.substring(0, 500),
+          suggestions: ["Could not parse structured suggestions, please read the summary."],
+          interviewPrep: [],
+          tailoringTips: []
+        },
+        error: "Failed to parse structured JSON from Gemini",
+      };
+    }
+  } catch (err) {
+    console.error("Gemini Analysis Error:", err);
+    let errorMsg = "AI Analysis is currently busy. Please try again in 30 seconds.";
+
+    if (err.message?.includes("429")) {
+      errorMsg = "API Rate Limit reached. Please wait a minute before trying again.";
+    } else if (err.message?.includes("404")) {
+      errorMsg = "Model not found. Please check your API key and model configuration.";
+    } else if (err.message?.includes("API key")) {
+      errorMsg = "Invalid API Key. Please check your .env file.";
+    }
+
+    return { geminiAnalysis: null, error: errorMsg };
+  }
+}
+
+async function askGemini({ question, resumeText, jobDescription = "" }) {
+  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+    return {
+      answer: "Gemini API key is not configured.",
+      error: "API key error",
+    };
+  }
+
+  const prompt = `
+    You are an expert career consultant and interview coach.
+    Below is the candidate's resume and a job description (if provided).
+    Answer the user's specific question about their career, interview prep, or resume.
+    
+    RESUME:
+    ${resumeText}
+    
+    JOB DESCRIPTION:
+    ${jobDescription || "Not provided"}
+
+    USER QUESTION: 
+    ${question}
+    
+    Provide a professional, encouraging, and helpful response.
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return { answer: response.text(), error: null };
+  } catch (err) {
+    console.error("Gemini Chat Error:", err);
+    return { answer: "I'm sorry, I'm currently unavailable to answer questions.", error: err.message };
+  }
+}
+
 module.exports = {
   analyzeResumeText,
   extractResumeTextFromBuffer,
+  analyzeWithGemini,
+  askGemini,
 };
 

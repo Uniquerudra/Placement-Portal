@@ -21,6 +21,7 @@ const Drive = require("../models/Drive");
 const {
   analyzeResumeText,
   extractResumeTextFromBuffer,
+  analyzeWithGemini,
 } = require("../utils/resumeAnalyzer");
 
 router.post("/", auth, role(["admin", "tpo"]), addDrive);
@@ -68,9 +69,17 @@ router.post(
             "Could not extract enough text from this file. Try a text-based PDF or DOCX.",
         });
       }
-      const analysis = analyzeResumeText({ resumeText: text, jobDescription });
+      const basicAnalysis = analyzeResumeText({ resumeText: text, jobDescription });
+      const { geminiAnalysis, error: geminiError } = await analyzeWithGemini({
+        resumeText: text,
+        jobDescription,
+      });
+
       res.json({
-        ...analysis,
+        ...basicAnalysis,
+        geminiAnalysis,
+        geminiError,
+        resumeText: text,
         file: {
           name: req.file.originalname,
           size: req.file.size,
@@ -78,6 +87,7 @@ router.post(
         },
       });
     } catch (err) {
+      console.error("Resume Analysis Route Error:", err);
       const msg = err?.message || "Failed to analyze resume";
       res.status(err.statusCode === 400 ? 400 : 500).json({ message: msg });
     }

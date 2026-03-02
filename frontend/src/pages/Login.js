@@ -1,18 +1,35 @@
 // frontend/src/pages/Login.js
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import API from "../api";
 import "../css/AuthDark.css";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const roleParam = queryParams.get("role") || "";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const getSubtitle = () => {
+    switch (roleParam.toLowerCase()) {
+      case "student":
+        return "Sign in to access your Student Placement Dashboard";
+      case "tpo":
+        return "Sign in to access your TPO Recruitment Portal";
+      case "admin":
+        return "Sign in to access your System Administration Panel";
+      default:
+        return "Sign in to access your TPO Portal dashboard";
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -97,8 +114,11 @@ function Login() {
         ← Back
       </button>
       <form className="auth-box" onSubmit={handleLogin}>
+        <div className="auth-logo">
+          <span className="logo-icon">🚀</span>
+        </div>
         <h2>Welcome Back</h2>
-        <p className="auth-subtitle">Sign in to access your TPO Portal dashboard</p>
+        <p className="auth-subtitle">{getSubtitle()}</p>
         {error ? (
           <div className="auth-error" role="alert" aria-live="polite">
             {error}
@@ -191,10 +211,10 @@ function Login() {
               />
             </g>
           </svg>
-          {googleLoading ? "Signing in..." : "Continue with Google"}
+          {googleLoading ? "Signing in..." : "Login with Google"}
         </button>
 
-        <p>
+        <p className="auth-footer">
           New user?{" "}
           <span onClick={() => navigate("/register")}>Create account</span>
         </p>

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
-import "../css/Auth.css";
+import "../css/AuthDark.css";
 
 function Register() {
   const [name, setName] = useState("");
@@ -32,7 +32,13 @@ function Register() {
 
   return (
     <div className="auth-container">
+      <button className="btn-back" onClick={() => navigate("/")}>
+        ← Back
+      </button>
       <form className="auth-box" onSubmit={handleRegister}>
+        <div className="auth-logo">
+          <span className="logo-icon">🚀</span>
+        </div>
         <h2>Create an account</h2>
         {error ? (
           <div className="auth-error" role="alert" aria-live="polite">
@@ -74,7 +80,7 @@ function Register() {
           {loading ? "Creating account..." : "Register"}
         </button>
 
-        <p>
+        <p className="auth-footer">
           Already have an account?{" "}
           <span onClick={() => navigate("/login")}>Login</span>
         </p>

@@ -20,9 +20,24 @@ const Drive = require("../models/Drive");
 const {
   analyzeResumeText,
   extractResumeTextFromBuffer,
+  analyzeWithGemini,
+  askGemini,
 } = require("../utils/resumeAnalyzer");
 
 const router = express.Router();
+// ... (rest of the file handles)
+
+router.post("/resume/ask", auth, role(["student"]), async (req, res) => {
+  try {
+    const { question, resumeText, jobDescription } = req.body;
+    if (!question) return res.status(400).json({ message: "Question is required" });
+
+    const result = await askGemini({ question, resumeText, jobDescription });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to get AI response" });
+  }
+});
 
 // Using Cloudinary for storage
 const storage = new CloudinaryStorage({
@@ -85,10 +100,17 @@ router.post(
         });
       }
 
-      const analysis = analyzeResumeText({ resumeText: text, jobDescription });
+      const basicAnalysis = analyzeResumeText({ resumeText: text, jobDescription });
+      const { geminiAnalysis, error: geminiError } = await analyzeWithGemini({
+        resumeText: text,
+        jobDescription,
+      });
 
       res.json({
-        ...analysis,
+        ...basicAnalysis,
+        geminiAnalysis,
+        geminiError,
+        resumeText: text,
         file: {
           name: req.file.originalname,
           size: req.file.size,
@@ -96,8 +118,9 @@ router.post(
         },
       });
     } catch (err) {
+      console.error("Resume Analysis Error (Student Route):", err);
       const msg = err?.message || "Failed to analyze resume";
-      res.status(400).json({ message: msg });
+      res.status(err.statusCode === 400 ? 400 : 500).json({ message: msg });
     }
   }
 );

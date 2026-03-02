@@ -13,8 +13,7 @@
 
 .login-left {
   flex: 1;
-  background: url("https://images.unsplash.com/photo-1551434678-e076c223a692")
-    center/cover no-repeat;
+  background: url("https://images.unsplash.com/photo-1551434678-e076c223a692") center/cover no-repeat;
 }
 
 .overlay {
@@ -55,7 +54,7 @@
   border-radius: 15px;
   width: 360px;
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 .logo {
@@ -89,7 +88,7 @@
 }
 
 .forgot {
-  color: #4f46e5;
+  color: black;
   cursor: pointer;
 }
 
@@ -97,7 +96,7 @@
   width: 100%;
   padding: 12px;
   border: none;
-  background: #4f46e5;
+  background: #46e566;
   color: white;
   font-size: 16px;
   border-radius: 8px;
@@ -121,6 +120,7 @@
     transform: translateY(40px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;

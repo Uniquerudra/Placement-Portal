@@ -58,11 +58,11 @@ function AdminDashboard() {
 
   return (
     <div className="dashboard-container admin-dashboard">
-      <button className="btn-back" onClick={() => navigate("/")}>
-        ← Go Back
-      </button>
       <div className="dashboard-header">
         <div className="header-left">
+          <button className="btn-back" onClick={() => navigate("/")}>
+            ← Go Back
+          </button>
           <h1>Placement Overview</h1>
           <p className="dashboard-subtitle">
             High‑level snapshot of the current placement season for your

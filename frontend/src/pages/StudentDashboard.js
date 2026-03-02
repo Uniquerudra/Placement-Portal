@@ -134,11 +134,11 @@ const StudentDashboard = () => {
 
   return (
     <div className="dashboard-container student-dashboard">
-      <button className="btn-back" onClick={() => navigate("/")}>
-        ← Back to Home
-      </button>
       <div className="dashboard-header">
         <div className="header-left">
+          <button className="btn-back" onClick={() => navigate("/")}>
+            ← Back to Home
+          </button>
           <h2>Student Dashboard</h2>
           <p className="dashboard-subtitle">
             View active placement drives, apply, and track the status.
@@ -218,40 +218,40 @@ const StudentDashboard = () => {
       <h3 className="section-title-dark">My Recent Applications</h3>
       <div className="table-container">
         <table className="dashboard-table-student">
-        <thead>
-          <tr>
-            <th>Company</th>
-            <th>Role</th>
-            <th>Package</th>
-            <th>Status</th>
-            <th>Applied</th>
-          </tr>
-        </thead>
-        <tbody>
-          {myApplications.length ? (
-            myApplications.slice(0, 8).map((app) => (
-              <tr key={app._id}>
-                <td>{app.drive?.company || "—"}</td>
-                <td>{app.drive?.role || "—"}</td>
-                <td>{app.drive?.package ? `${app.drive.package} LPA` : "—"}</td>
-                <td>
-                  <span className={`status-badge status-${app.status || 'applied'}`}>
-                    {app.status || "applied"}
-                  </span>
-                </td>
-                <td>
-                  {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : "—"}
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Role</th>
+              <th>Package</th>
+              <th>Status</th>
+              <th>Applied</th>
+            </tr>
+          </thead>
+          <tbody>
+            {myApplications.length ? (
+              myApplications.slice(0, 8).map((app) => (
+                <tr key={app._id}>
+                  <td>{app.drive?.company || "—"}</td>
+                  <td>{app.drive?.role || "—"}</td>
+                  <td>{app.drive?.package ? `${app.drive.package} LPA` : "—"}</td>
+                  <td>
+                    <span className={`status-badge status-${app.status || 'applied'}`}>
+                      {app.status || "applied"}
+                    </span>
+                  </td>
+                  <td>
+                    {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : "—"}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} style={{ padding: 16, color: "#64748b" }}>
+                  No applications yet.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={5} style={{ padding: 16, color: "#64748b" }}>
-                No applications yet.
-              </td>
-            </tr>
-          )}
-        </tbody>
+            )}
+          </tbody>
         </table>
       </div>
 

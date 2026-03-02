@@ -48,14 +48,14 @@ const LandingPage = () => {
       <section className="hero-dark" id="hero">
         <div className="glow-ring"></div>
         <div className="glow-ring glow-ring-2"></div>
-        
+
         <div className="hero-content">
           <h1 className="hero-title">
             Campus Recruitment<br />
             <span className="gradient-text">& Training Platform</span>
           </h1>
           <p className="hero-subtitle">
-            Connect top talent with industry leaders. Streamline placements with 
+            Connect top talent with industry leaders. Streamline placements with
             intelligent automation and real-time analytics.
           </p>
 
@@ -86,13 +86,13 @@ const LandingPage = () => {
 
         {/* Feature Cards */}
         <div className="feature-cards">
-          <div className="feature-card" onClick={() => navigate("/login")}>
+          <div className="feature-card" onClick={() => navigate("/login?role=student")}>
             <div className="feature-icon">👤</div>
             <h3>Student Portal</h3>
             <p>Apply to drives, track applications, and analyze your resume</p>
             <span className="feature-link">Login as Student →</span>
           </div>
-          <div className="feature-card" onClick={() => navigate("/login")}>
+          <div className="feature-card" onClick={() => navigate("/login?role=tpo")}>
             <div className="feature-icon">📊</div>
             <h3>TPO Dashboard</h3>
             <p>Manage drives, review applications, and generate reports</p>
@@ -104,7 +104,7 @@ const LandingPage = () => {
             <p>Get ATS scores and keyword matching for better results</p>
             <span className="feature-link">Try Analyzer →</span>
           </div>
-          <div className="feature-card" onClick={() => navigate("/login")}>
+          <div className="feature-card" onClick={() => navigate("/login?role=admin")}>
             <div className="feature-icon">⚙️</div>
             <h3>Admin Panel</h3>
             <p>Manage users, view analytics, and control system settings</p>

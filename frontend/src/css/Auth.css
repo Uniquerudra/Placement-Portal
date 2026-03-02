@@ -83,12 +83,12 @@
   margin-top: 12px;
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  background: linear-gradient(135deg, #2F80ED, #2F80ED);
   color: #fff;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 16px 30px rgba(79, 70, 229, 0.25);
+  box-shadow: 0 16px 30px rgba(13, 156, 166, 0.25);
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
@@ -155,10 +155,10 @@
   width: 100%;
   padding: 12px 14px;
   margin-top: 0;
-  border: 1px solid rgba(15, 23, 42, 0.14);
+  border: 1px solid rgba(15, 42, 40, 0.14);
   border-radius: 12px;
-  background: #fff;
-  color: #0f172a;
+  background: #017086;
+  color: #06767a;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -171,14 +171,14 @@
 }
 
 .google-login-btn:hover:enabled {
-  background: #fff;
+  background: rgb(18, 168, 199);
   border-color: rgba(15, 23, 42, 0.2);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 8px rgba(5, 132, 144, 0.08);
   transform: translateY(-1px);
 }
 
 .google-login-btn.no-hover-color:hover:enabled {
-  background: #fff;
+  background: #2F80ED;
 }
 
 .auth-forgot {
@@ -189,17 +189,17 @@
 .auth-forgot span {
   font-size: 13px;
   font-weight: 500;
-  color: #64748b;
+  color: rgb(81, 145, 224);
   cursor: pointer;
   transition: color 0.15s ease;
 }
 
 .auth-forgot span:hover {
-  color: #4f46e5;
+  color: #085e83;
 }
 
 .google-login-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.1;
   cursor: not-allowed;
   transform: none;
 }
@@ -218,8 +218,10 @@
 .auth-subtitle {
   font-size: 14px;
   color: #64748b;
-  margin-bottom: 20px;
+  margin: 2px auto 20px;
   line-height: 1.5;
+  text-align: center;
+  max-width: 335px;
 }
 
 .auth-footer {

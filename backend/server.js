@@ -18,19 +18,22 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   'https://portal-iaxw.vercel.app',
   'http://localhost:3000',
-  'http://localhost:3008'
+  'http://localhost:3008',
+  'http://localhost:3009',
+  'http://localhost:3010'
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
-    // Check if origin is allowed
-    if (allowedOrigins.includes(origin)) {
+
+    // Check if origin is allowed or if it's localhost (any port)
+    const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(origin);
+    if (allowedOrigins.includes(origin) || isLocalhost) {
       return callback(null, true);
     }
-    
+
     // For development - allow all
     console.log('CORS - Origin not in allowed list:', origin);
     callback(null, true);

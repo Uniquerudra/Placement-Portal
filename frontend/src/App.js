@@ -12,6 +12,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import ResumeAnalyzer from "./pages/student/ResumeAnalyzer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AddDrive from "./pages/tpo/AddDrive";
+import GeminiChatbot from "./components/GeminiChatbot";
 
 // Google OAuth Client ID - Replace with your actual client ID from Google Cloud Console
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "270933402517-i0hvrvgfvtn0sh2rk3d24p6066hbu1qc.apps.googleusercontent.com";
@@ -72,6 +73,7 @@ function App() {
 
           <Route path="*" element={<LandingPage />} />
         </Routes>
+        <GeminiChatbot />
       </Router>
     </GoogleOAuthProvider>
   );
