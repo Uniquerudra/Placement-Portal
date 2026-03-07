@@ -36,10 +36,9 @@ function Register() {
         ← Back
       </button>
       <form className="auth-box" onSubmit={handleRegister}>
-        <div className="auth-logo">
-          <span className="logo-icon">🚀</span>
+        <div className="auth-logo" onClick={() => navigate("/")} style={{ cursor: "pointer", display: "flex", justifyContent: "center", marginBottom: "40px" }}>
+          <img src="/logo.png" alt="TPO Portal" className="logo-icon-img auth-standalone-logo" />
         </div>
-        <h2>Create an account</h2>
         {error ? (
           <div className="auth-error" role="alert" aria-live="polite">
             {error}

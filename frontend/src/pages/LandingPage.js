@@ -26,8 +26,8 @@ const LandingPage = () => {
     <div className="landing">
       {/* NAVBAR */}
       <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
-        <div className="navbar-logo" onClick={() => navigate("/")}>
-          <span className="logo-icon">🚀</span>
+        <div className="navbar-logo" onClick={() => navigate("/")} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <img src="/logo.png" alt="TPO Portal" className="logo-icon-img" />
           <h2>TPO Portal</h2>
         </div>
 
@@ -200,8 +200,10 @@ const LandingPage = () => {
       <footer className="landing-footer">
         <div className="footer-content">
           <div className="footer-logo">
-            <span className="logo-icon">🚀</span>
-            <h3>TPO Portal</h3>
+            <div className="footer-logo-brand" style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+              <img src="/logo.png" alt="TPO Portal" className="logo-icon-img footer-logo-img" />
+              <h3>TPO Portal</h3>
+            </div>
             <p>Empowering the next generation of professionals.</p>
           </div>
           <div className="footer-links">

@@ -17,6 +17,8 @@ const auth = require("../middleware/auth");
 const role = require("../middleware/role");
 const Application = require("../models/Application");
 const Drive = require("../models/Drive");
+const User = require("../models/User");
+const Notification = require("../models/Notification");
 const {
   analyzeResumeText,
   extractResumeTextFromBuffer,
@@ -62,6 +64,68 @@ const analyzeUpload = multer({
     if (ext === ".pdf" || ext === ".docx") return cb(null, true);
     cb(new Error("Only PDF or DOCX files are allowed"));
   },
+});
+
+router.get("/profile", auth, role(["student"]), async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+router.put("/profile", auth, role(["student"]), async (req, res) => {
+  try {
+    const {
+      phone,
+      branch,
+      cgpa,
+      tenthPercentage,
+      twelfthPercentage,
+      yearOfPassing,
+      skills,
+      githubUrl,
+      linkedinUrl,
+      portfolioUrl,
+    } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.phone = phone || user.phone;
+    user.branch = branch || user.branch;
+    user.cgpa = cgpa || user.cgpa;
+    user.tenthPercentage = tenthPercentage || user.tenthPercentage;
+    user.twelfthPercentage = twelfthPercentage || user.twelfthPercentage;
+    user.yearOfPassing = yearOfPassing || user.yearOfPassing;
+    user.skills = skills || user.skills;
+    user.githubUrl = githubUrl || user.githubUrl;
+    user.linkedinUrl = linkedinUrl || user.linkedinUrl;
+    user.portfolioUrl = portfolioUrl || user.portfolioUrl;
+
+    await user.save();
+    res.json({ message: "Profile updated successfully", user });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+router.post("/profile/resume", auth, role(["student"]), upload.single("resume"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const user = await User.findById(req.user.id);
+    user.resumeUrl = req.file.path;
+    user.resumePublicId = req.file.filename;
+    await user.save();
+
+    res.json({ message: "Resume updated successfully", resumeUrl: user.resumeUrl });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 router.get("/ping", (_req, res) => {
@@ -125,41 +189,56 @@ router.post(
   }
 );
 
+router.get("/notifications", auth, role(["student"]), async (req, res) => {
+  try {
+    const notifications = await Notification.find({
+      $or: [
+        { recipient: req.user.id },
+        { recipient: { $exists: false } },
+        { recipient: null }
+      ]
+    }).sort({ createdAt: -1 }).limit(10);
+
+    res.json(notifications);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+router.get("/ping", (_req, res) => {
+  res.json({ ok: true, route: "studentRoutes" });
+});
+
 router.post(
   "/apply/:driveId",
   auth,
   role(["student"]),
-  (req, res, next) => {
-    upload.single("resume")(req, res, (err) => {
-      if (err) {
-        console.error("Multer/Cloudinary Error during student apply:", err);
-        return res.status(err.http_code || 400).json({
-          message: "Resume upload failed. Please try again or check file size/type.",
-          error: err.message
-        });
-      }
-      next();
-    });
-  },
+  upload.single("resume"), // Resume is optional if profile has it
   async (req, res) => {
     try {
-      const {
-        fullName,
-        email,
-        phone,
-        branch,
-        cgpa,
-        yearOfPassing,
-        skills,
-        linkedinUrl,
-        githubUrl,
-        portfolioUrl,
-        additionalInfo,
-      } = req.body;
       const { driveId } = req.params;
       const drive = await Drive.findById(driveId);
       if (!drive) {
         return res.status(404).json({ message: "Drive not found" });
+      }
+
+      // Get Student Profile
+      const student = await User.findById(req.user.id);
+      if (!student) return res.status(404).json({ message: "User not found" });
+
+      // Digital Verification of Eligibility
+      if (drive.minCGPA && student.cgpa < drive.minCGPA) {
+        return res.status(400).json({
+          message: `Ineligible: Your CGPA (${student.cgpa}) is below the required minimum (${drive.minCGPA})`
+        });
+      }
+
+      if (drive.allowedBranches && drive.allowedBranches.length > 0) {
+        if (!student.branch || !drive.allowedBranches.includes(student.branch)) {
+          return res.status(400).json({
+            message: `Ineligible: Your branch (${student.branch || 'Not Specified'}) is not allowed for this drive.`
+          });
+        }
       }
 
       const existing = await Application.findOne({
@@ -170,9 +249,25 @@ router.post(
         return res.status(400).json({ message: "Already applied to this drive" });
       }
 
-      let resumeUrl = "";
+      // Auto-fill from Profile if not provided in body
+      const fullName = req.body.fullName || student.name;
+      const email = req.body.email || student.email;
+      const phone = req.body.phone || student.phone;
+      const branch = req.body.branch || student.branch;
+      const cgpa = req.body.cgpa || student.cgpa;
+      const yearOfPassing = req.body.yearOfPassing || student.yearOfPassing;
+      const skills = req.body.skills || (student.skills ? student.skills.join(", ") : "");
+      const linkedinUrl = req.body.linkedinUrl || student.linkedinUrl;
+      const githubUrl = req.body.githubUrl || student.githubUrl;
+      const portfolioUrl = req.body.portfolioUrl || student.portfolioUrl;
+
+      let resumeUrl = student.resumeUrl;
       if (req.file) {
         resumeUrl = req.file.path;
+      }
+
+      if (!resumeUrl) {
+        return res.status(400).json({ message: "No resume found. Please upload one in your profile or here." });
       }
 
       const application = await Application.create({
@@ -188,7 +283,7 @@ router.post(
         linkedinUrl,
         githubUrl,
         portfolioUrl,
-        additionalInfo,
+        additionalInfo: req.body.additionalInfo || "",
         resumeUrl,
       });
 
@@ -196,15 +291,15 @@ router.post(
       try {
         await sendEmail({
           email: application.email,
-          subject: `Application Received: ${drive.companyName}`,
-          message: `Hello ${application.fullName},\n\nWe have received your application for the ${drive.role} position at ${drive.companyName}.\n\nApplication Details:\n- Drive: ${drive.companyName}\n- Role: ${drive.role}\n- Status: Applied\n\nYou can track your application status on the portal.\n\nBest regards,\nTPO Team`,
+          subject: `Application Received: ${drive.company}`,
+          message: `Hello ${application.fullName},\n\nWe have received your application for the ${drive.role} position at ${drive.company}.\n\nApplication Details:\n- Drive: ${drive.company}\n- Role: ${drive.role}\n- Status: Applied\n\nYou can track your application status on the portal.\n\nBest regards,\nTPO Team`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #4f46e5;">Application Confirmed</h2>
               <p>Hello <strong>${application.fullName}</strong>,</p>
-              <p>Your application for <strong>${drive.companyName}</strong> has been successfully received.</p>
+              <p>Your application for <strong>${drive.company}</strong> has been successfully received.</p>
               <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <p style="margin: 0;"><strong>Company:</strong> ${drive.companyName}</p>
+                <p style="margin: 0;"><strong>Company:</strong> ${drive.company}</p>
                 <p style="margin: 5px 0 0 0;"><strong>Role:</strong> ${drive.role}</p>
                 <p style="margin: 5px 0 0 0;"><strong>Status:</strong> Applied</p>
               </div>

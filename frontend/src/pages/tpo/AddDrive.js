@@ -18,12 +18,29 @@ const AddDrive = () => {
     rounds: "",
     contactEmail: "",
     additionalNotes: "",
+    minCGPA: "",
+    allowedBranches: "",
   });
+  const [allBranches, setAllBranches] = useState(true);
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
+  const ALL_BRANCH_LIST = ["CSE", "CSE-AI", "CSE-DS", "IT", "ECE", "EN", "ME", "CE"];
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const toggleBranch = (branch) => {
+    const current = formData.allowedBranches.split(",").map(b => b.trim().toUpperCase()).filter(Boolean);
+    let updated;
+    if (current.includes(branch)) {
+      updated = current.filter(b => b !== branch);
+    } else {
+      updated = [...current, branch];
+    }
+    setFormData({ ...formData, allowedBranches: updated.join(", ") });
+    if (updated.length > 0) setAllBranches(false);
   };
 
   const handleSubmit = async (e) => {
@@ -32,7 +49,15 @@ const AddDrive = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await API.post("/drives", formData, {
+      const drivePayload = {
+        ...formData,
+        minCGPA: formData.minCGPA ? parseFloat(formData.minCGPA) : 0,
+        allowedBranches: allBranches
+          ? []
+          : formData.allowedBranches.split(",").map(b => b.trim().toUpperCase()).filter(Boolean)
+      };
+
+      await API.post("/drives", drivePayload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -52,7 +77,9 @@ const AddDrive = () => {
     { name: "package", label: "Package (e.g. 12 LPA)", type: "text", icon: "💰", required: true },
     { name: "location", label: "Location", type: "text", icon: "📍", required: true },
     { name: "deadline", label: "Application Deadline", type: "date", icon: "📅", required: true },
-    { name: "eligibilityCriteria", label: "Eligibility Criteria", type: "text", icon: "🎓" },
+    { name: "minCGPA", label: "Minimum CGPA Required", type: "number", icon: "📊" },
+    { name: "allowedBranches", label: "Allowed Branches", type: "text", icon: "🎓", placeholder: "CSE, IT, ECE..." },
+    { name: "eligibilityCriteria", label: "Other Eligibility Notes", type: "text", icon: "⚖️" },
     { name: "jobDescription", label: "Job Description", type: "textarea", icon: "📝", rows: 3 },
     { name: "rounds", label: "Selection Rounds", type: "text", icon: "🎯" },
     { name: "contactEmail", label: "Contact Email", type: "email", icon: "📧" },
@@ -73,9 +100,8 @@ const AddDrive = () => {
             {formFields.map((field, index) => (
               <div
                 key={field.name}
-                className={`add-drive-field ${field.type === "textarea" ? "full-width" : ""} ${
-                  focusedField === field.name ? "focused" : ""
-                }`}
+                className={`add-drive-field ${field.type === "textarea" ? "full-width" : ""} ${focusedField === field.name ? "focused" : ""
+                  }`}
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <label className="add-drive-label">
@@ -83,7 +109,49 @@ const AddDrive = () => {
                   {field.label}
                   {field.required && <span className="required">*</span>}
                 </label>
-                {field.type === "textarea" ? (
+
+                {field.name === "allowedBranches" ? (
+                  <div className="branch-selection-container">
+                    <div className="branch-toggle-row">
+                      <label className="all-branches-toggle">
+                        <input
+                          type="checkbox"
+                          checked={allBranches}
+                          onChange={(e) => {
+                            setAllBranches(e.target.checked);
+                            if (e.target.checked) setFormData({ ...formData, allowedBranches: "" });
+                          }}
+                        />
+                        <span className="toggle-text">Allow All Branches</span>
+                      </label>
+                    </div>
+                    {!allBranches && (
+                      <>
+                        <input
+                          type="text"
+                          name="allowedBranches"
+                          value={formData.allowedBranches}
+                          onChange={handleChange}
+                          onFocus={() => setFocusedField("allowedBranches")}
+                          onBlur={() => setFocusedField(null)}
+                          placeholder="Manually enter or select below..."
+                          className="add-drive-input"
+                        />
+                        <div className="branch-tags">
+                          {ALL_BRANCH_LIST.map(branch => (
+                            <span
+                              key={branch}
+                              className={`branch-tag ${formData.allowedBranches.toUpperCase().includes(branch) ? 'active' : ''}`}
+                              onClick={() => toggleBranch(branch)}
+                            >
+                              {branch}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : field.type === "textarea" ? (
                   <textarea
                     name={field.name}
                     value={formData[field.name]}

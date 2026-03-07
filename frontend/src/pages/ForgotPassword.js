@@ -30,8 +30,9 @@ function ForgotPassword() {
     return (
         <div className="auth-container">
             <form className="auth-box" onSubmit={handleSubmit}>
-                <h2>Forgot Password</h2>
-                <p className="auth-subtitle">Enter your email and we'll send you a link to reset your password.</p>
+                <div className="auth-logo" onClick={() => navigate("/")} style={{ cursor: "pointer", display: "flex", justifyContent: "center", marginBottom: "40px" }}>
+                    <img src="/logo.png" alt="TPO Portal" className="logo-icon-img auth-standalone-logo" />
+                </div>
 
                 {error && <div className="auth-error">{error}</div>}
                 {message && <div className="auth-success" style={{ color: '#10b981', background: '#ecfdf5', padding: '10px', borderRadius: '5px', marginBottom: '15px', textAlign: 'center' }}>{message}</div>}

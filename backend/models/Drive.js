@@ -13,6 +13,8 @@ const driveSchema = new mongoose.Schema(
     rounds: String,
     contactEmail: String,
     additionalNotes: String,
+    minCGPA: { type: Number, default: 0 },
+    allowedBranches: { type: [String], default: [] },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

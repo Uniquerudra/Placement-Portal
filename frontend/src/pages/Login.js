@@ -1,6 +1,6 @@
 // frontend/src/pages/Login.js
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import API from "../api";
 import "../css/AuthDark.css";
@@ -11,6 +11,19 @@ function Login() {
   const queryParams = new URLSearchParams(location.search);
   const roleParam = queryParams.get("role") || "";
 
+  const getRoleSubtitle = () => {
+    switch (roleParam.toLowerCase()) {
+      case "student":
+        return "Login as a Student";
+      case "tpo":
+        return "Login as a TPO";
+      case "admin":
+        return "Login as an Administrator";
+      default:
+        return "Login to your account";
+    }
+  };
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -18,18 +31,6 @@ function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const getSubtitle = () => {
-    switch (roleParam.toLowerCase()) {
-      case "student":
-        return "Sign in to access your Student Placement Dashboard";
-      case "tpo":
-        return "Sign in to access your TPO Recruitment Portal";
-      case "admin":
-        return "Sign in to access your System Administration Panel";
-      default:
-        return "Sign in to access your TPO Portal dashboard";
-    }
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -114,11 +115,11 @@ function Login() {
         ← Back
       </button>
       <form className="auth-box" onSubmit={handleLogin}>
-        <div className="auth-logo">
-          <span className="logo-icon">🚀</span>
+        <div className="auth-logo" onClick={() => navigate("/")} style={{ cursor: "pointer", display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+          <img src="/logo.png" alt="TPO Portal" className="logo-icon-img auth-standalone-logo" />
         </div>
-        <h2>Welcome Back</h2>
-        <p className="auth-subtitle">{getSubtitle()}</p>
+        <h2 style={{ textAlign: "center", marginBottom: "5px", color: "var(--text-primary)" }}>Welcome Back</h2>
+        <p style={{ textAlign: "center", marginBottom: "25px", color: "#64748b", fontSize: "0.95rem" }}>{getRoleSubtitle()}</p>
         {error ? (
           <div className="auth-error" role="alert" aria-live="polite">
             {error}

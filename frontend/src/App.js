@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TPODashboard from "./pages/tpo/TPODashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import ResumeAnalyzer from "./pages/student/ResumeAnalyzer";
+import Profile from "./pages/student/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AddDrive from "./pages/tpo/AddDrive";
 import GeminiChatbot from "./components/GeminiChatbot";
@@ -67,6 +68,14 @@ function App() {
             element={
               <ProtectedRoute role="student">
                 <ResumeAnalyzer />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/profile"
+            element={
+              <ProtectedRoute role="student">
+                <Profile />
               </ProtectedRoute>
             }
           />

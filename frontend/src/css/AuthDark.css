@@ -6,7 +6,7 @@
   place-items: center;
   padding: 40px 20px;
   background: #050508;
-  /* Match landing page --darker */
+  /* Deep Navy Gradient instead of pure black */
   color: #ffffff;
   position: relative;
   overflow: hidden;
@@ -60,6 +60,7 @@
 .auth-box {
   width: min(440px, 100%);
   background: rgba(10, 10, 15, 0.8);
+  /* Lighter, cleaner glassmorphism */
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 32px;
   padding: 48px 40px;
@@ -85,8 +86,31 @@
 
 .auth-logo {
   margin-bottom: 24px;
-  font-size: 3.5rem;
-  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.logo-icon-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.auth-standalone-logo {
+  height: 80px;
+  filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.3));
+}
+
+.auth-logo span {
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .auth-box h2 {

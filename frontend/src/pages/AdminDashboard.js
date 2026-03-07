@@ -60,10 +60,14 @@ function AdminDashboard() {
     <div className="dashboard-container admin-dashboard">
       <div className="dashboard-header">
         <div className="header-left">
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "15px" }}>
+            <img src="/logo.png" alt="Logo" style={{ height: "48px", cursor: "pointer" }} onClick={() => navigate("/")} />
+            <h2 style={{ fontSize: "1.5rem", margin: 0, fontWeight: "700", color: "#f8fafc" }}>TPO Portal</h2>
+          </div>
           <button className="btn-back" onClick={() => navigate("/")}>
             ← Go Back
           </button>
-          <h1>Placement Overview</h1>
+          <h1 style={{ marginTop: "10px" }}>Placement Overview</h1>
           <p className="dashboard-subtitle">
             High‑level snapshot of the current placement season for your
             institute.

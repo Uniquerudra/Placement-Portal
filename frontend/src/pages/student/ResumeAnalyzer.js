@@ -105,11 +105,14 @@ export default function ResumeAnalyzer() {
   return (
     <div className="dashboard-container student-dashboard">
       <div className="dashboard-header">
-        <div>
-          <h2>AI Resume Intelligence</h2>
-          <p className="dashboard-subtitle">
-            Get premium ATS scoring and personalized interview coaching powered by Gemini.
-          </p>
+        <div className="ra-header-left">
+          <img src="/logo.png" alt="Logo" className="logo-icon-img" onClick={() => navigate("/")} />
+          <div>
+            <h2 style={{ fontSize: "2rem", fontWeight: "700" }}>TPO Portal</h2>
+            <p className="dashboard-subtitle">
+              AI Resume Intelligence & Detailed Assessment Report
+            </p>
+          </div>
         </div>
         <div className="ra-header-actions">
           <button className="btn-secondary" onClick={() => navigate("/student")}>

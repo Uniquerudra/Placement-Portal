@@ -143,6 +143,12 @@ function TPODashboard() {
               <p className="drive-role">{drive.role}</p>
               <p className="drive-location">📍 {drive.location}</p>
               <div className="drive-tags">
+                {drive.minCGPA > 0 && (
+                  <span className="tag tag-criteria">📊 Min CGPA: {drive.minCGPA}</span>
+                )}
+                {drive.allowedBranches && drive.allowedBranches.length > 0 && (
+                  <span className="tag tag-branches">🎓 {drive.allowedBranches.join(", ")}</span>
+                )}
                 {drive.eligibilityCriteria && (
                   <span className="tag">{drive.eligibilityCriteria}</span>
                 )}

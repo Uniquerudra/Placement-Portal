@@ -1,13 +1,19 @@
-// frontend/src/pages/StudentDashboard.js
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  FiUser, FiMail, FiPhone, FiBook, FiAward,
+  FiCalendar, FiLinkedin, FiGithub, FiGlobe,
+  FiPlusCircle, FiCheckCircle, FiXCircle
+} from "react-icons/fi";
 import API from "../api";
 import "../css/StudentDashboardDark.css";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [drives, setDrives] = useState([]);
-  // const [profile, setProfile] = useState({});
+  const [profile, setProfile] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifs, setShowNotifs] = useState(false);
   const [appliedDrives, setAppliedDrives] = useState([]);
   const [myApplications, setMyApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,15 +41,40 @@ const StudentDashboard = () => {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [driveRes, myAppsRes] = await Promise.all([
+      const [driveRes, myAppsRes, profileRes, notifRes] = await Promise.all([
         API.get("/drives", { headers: { Authorization: `Bearer ${token}` } }),
         API.get("/applications/my", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        API.get("/student/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        API.get("/student/notifications", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
 
       setDrives(driveRes.data || []);
       setMyApplications(myAppsRes.data || []);
+      setProfile(profileRes.data || null);
+      setNotifications(notifRes.data || []);
+
+      if (profileRes.data) {
+        setApplyForm({
+          fullName: profileRes.data.name || "",
+          email: profileRes.data.email || "",
+          phone: profileRes.data.phone || "",
+          branch: profileRes.data.branch || "",
+          cgpa: profileRes.data.cgpa || "",
+          yearOfPassing: profileRes.data.yearOfPassing || "",
+          skills: profileRes.data.skills ? profileRes.data.skills.join(", ") : "",
+          linkedinUrl: profileRes.data.linkedinUrl || "",
+          githubUrl: profileRes.data.githubUrl || "",
+          portfolioUrl: profileRes.data.portfolioUrl || "",
+          additionalInfo: "",
+        });
+      }
+
       setAppliedDrives(
         (myAppsRes.data || [])
           .map((app) => app?.drive?._id)
@@ -63,11 +94,22 @@ const StudentDashboard = () => {
   const openApplyForm = (drive) => {
     setSelectedDrive(drive);
     setApplyError("");
-    setApplyForm((prev) => ({
-      ...prev,
-      fullName: prev.fullName || "",
-      email: prev.email || "",
-    }));
+    // Re-fill with profile data just in case
+    if (profile) {
+      setApplyForm(prev => ({
+        ...prev,
+        fullName: profile.name || "",
+        email: profile.email || "",
+        phone: profile.phone || "",
+        branch: profile.branch || "",
+        cgpa: profile.cgpa || "",
+        yearOfPassing: profile.yearOfPassing || "",
+        skills: profile.skills ? profile.skills.join(", ") : "",
+        linkedinUrl: profile.linkedinUrl || "",
+        githubUrl: profile.githubUrl || "",
+        portfolioUrl: profile.portfolioUrl || "",
+      }));
+    }
     setResumeFile(null);
   };
 
@@ -85,24 +127,17 @@ const StudentDashboard = () => {
     setApplyError("");
 
     const formData = new FormData();
-    formData.append("fullName", applyForm.fullName);
-    formData.append("email", applyForm.email);
-    formData.append("phone", applyForm.phone);
-    formData.append("branch", applyForm.branch);
-    formData.append("cgpa", applyForm.cgpa);
-    formData.append("yearOfPassing", applyForm.yearOfPassing);
-    formData.append("skills", applyForm.skills);
-    formData.append("linkedinUrl", applyForm.linkedinUrl);
-    formData.append("githubUrl", applyForm.githubUrl);
-    formData.append("portfolioUrl", applyForm.portfolioUrl);
-    formData.append("additionalInfo", applyForm.additionalInfo);
+    Object.keys(applyForm).forEach(key => {
+      formData.append(key, applyForm[key]);
+    });
+
     if (resumeFile) {
       formData.append("resume", resumeFile);
     }
 
     try {
       await API.post(
-        `/drives/apply/${selectedDrive._id}`,
+        `/student/apply/${selectedDrive._id}`,
         formData,
         {
           headers: {
@@ -136,10 +171,14 @@ const StudentDashboard = () => {
     <div className="dashboard-container student-dashboard">
       <div className="dashboard-header">
         <div className="header-left">
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "15px" }}>
+            <img src="/logo.png" alt="Logo" style={{ height: "48px", cursor: "pointer" }} onClick={() => navigate("/")} />
+            <h2 style={{ fontSize: "1.5rem", margin: 0, fontWeight: "700" }}>TPO Portal</h2>
+          </div>
           <button className="btn-back" onClick={() => navigate("/")}>
             ← Back to Home
           </button>
-          <h2>Student Dashboard</h2>
+          <h2 style={{ marginTop: "10px" }}>Student Dashboard</h2>
           <p className="dashboard-subtitle">
             View active placement drives, apply, and track the status.
           </p>
@@ -159,6 +198,43 @@ const StudentDashboard = () => {
             </div>
           </div>
           <div className="actions">
+            <div className="notifications-wrapper">
+              <button
+                className={`btn-icon ${notifications.length > 0 ? 'has-notifs' : ''}`}
+                onClick={() => setShowNotifs(!showNotifs)}
+                title="Notifications"
+              >
+                🔔 {notifications.length > 0 && <span className="notif-badge">{notifications.length}</span>}
+              </button>
+
+              {showNotifs && (
+                <div className="notifs-dropdown">
+                  <div className="notifs-header">
+                    <h4>Notifications</h4>
+                    <button onClick={() => setShowNotifs(false)}>×</button>
+                  </div>
+                  <div className="notifs-list">
+                    {notifications.length > 0 ? (
+                      notifications.map(n => (
+                        <div key={n._id} className={`notif-item ${n.type}`}>
+                          <div className="notif-title">{n.title}</div>
+                          <div className="notif-msg">{n.message}</div>
+                          <div className="notif-time">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="no-notifs">No new notifications</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            <button
+              className="btn-primary"
+              onClick={() => navigate("/student/profile")}
+            >
+              My Profile
+            </button>
             <button
               className="btn-primary"
               onClick={() => navigate("/student/resume-analyzer")}
@@ -179,15 +255,48 @@ const StudentDashboard = () => {
         <div className="drives-grid">
           {drives.map((drive) => {
             const isApplied = appliedDrives.includes(drive._id);
+
+            // Eligibility logic
+            let isEligible = true;
+            let eligibilityReason = "";
+
+            if (profile) {
+              if (drive.minCGPA && profile.cgpa < drive.minCGPA) {
+                isEligible = false;
+                eligibilityReason = `Min CGPA: ${drive.minCGPA}`;
+              } else if (drive.allowedBranches && drive.allowedBranches.length > 0) {
+                if (!profile.branch || !drive.allowedBranches.includes(profile.branch)) {
+                  isEligible = false;
+                  eligibilityReason = "Branch not allowed";
+                }
+              }
+            }
+
             return (
               <div key={drive._id} className="drive-card-dark">
                 <div className="drive-card-image">
                   <div className="drive-card-gradient"></div>
+                  <div className="card-top-badges">
+                    {new Date(drive.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000) && (
+                      <span className="badge-new">NEW</span>
+                    )}
+                    {drive.deadline && new Date(drive.deadline) > new Date() && new Date(drive.deadline) < new Date(Date.now() + 48 * 60 * 60 * 1000) && (
+                      <span className="badge-deadline">CLOSING SOON</span>
+                    )}
+                  </div>
                   <span className="drive-card-badge">{drive.package} LPA</span>
                 </div>
                 <div className="drive-card-content">
                   <h3>{drive.company}</h3>
                   <p className="drive-role">{drive.role}</p>
+
+                  {profile && !isApplied && (
+                    <div className={`eligibility-status ${isEligible ? 'eligible' : 'ineligible'}`}>
+                      {isEligible ? '✓ Eligible' : '✕ Ineligible'}
+                      {!isEligible && <div className="criteria-text">{eligibilityReason}</div>}
+                    </div>
+                  )}
+
                   <p className="drive-location">{drive.location}</p>
                   <div className="drive-tags">
                     {drive.eligibilityCriteria && (
@@ -196,8 +305,8 @@ const StudentDashboard = () => {
                     {drive.rounds && <span className="tag">{drive.rounds}</span>}
                   </div>
                   <button
-                    className={isApplied ? "btn-applied" : "btn-apply"}
-                    disabled={isApplied}
+                    className={isApplied ? "btn-applied" : isEligible ? "btn-apply" : "btn-apply disabled-btn"}
+                    disabled={isApplied || !isEligible}
                     onClick={() => openApplyForm(drive)}
                   >
                     {isApplied ? (
@@ -271,102 +380,187 @@ const StudentDashboard = () => {
               </div>
             ) : null}
 
-            <form className="apply-form" onSubmit={submitApplication}>
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={applyForm.fullName}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, fullName: e.target.value })
-                }
-                required
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={applyForm.email}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, email: e.target.value })
-                }
-                required
-              />
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={applyForm.phone}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, phone: e.target.value })
-                }
-                required
-              />
-              <input
-                type="text"
-                placeholder="Branch / Department"
-                value={applyForm.branch}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, branch: e.target.value })
-                }
-              />
-              <input
-                type="text"
-                placeholder="CGPA / Percentage"
-                value={applyForm.cgpa}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, cgpa: e.target.value })
-                }
-              />
+            <form className="apply-form-premium" onSubmit={submitApplication}>
+              {/* Form Progress/Sections Indicator could be added here if needed */}
 
-              <input
-                type="text"
-                placeholder="Year of Passing (e.g. 2026)"
-                value={applyForm.yearOfPassing}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, yearOfPassing: e.target.value })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Key Skills (comma separated)"
-                value={applyForm.skills}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, skills: e.target.value })
-                }
-              />
-              <input
-                type="url"
-                placeholder="LinkedIn Profile URL"
-                value={applyForm.linkedinUrl}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, linkedinUrl: e.target.value })
-                }
-              />
-              <input
-                type="url"
-                placeholder="GitHub Profile URL"
-                value={applyForm.githubUrl}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, githubUrl: e.target.value })
-                }
-              />
-              <input
-                type="url"
-                placeholder="Portfolio / Resume Website (optional)"
-                value={applyForm.portfolioUrl}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, portfolioUrl: e.target.value })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Any additional info (projects, notice period, etc.)"
-                value={applyForm.additionalInfo}
-                onChange={(e) =>
-                  setApplyForm({ ...applyForm, additionalInfo: e.target.value })
-                }
-              />
+              <div className="form-section-premium">
+                <h4><FiUser className="section-icon" /> Personal Information</h4>
+                <div className="form-grid-premium">
+                  <div className="form-group-premium">
+                    <label>Full Name</label>
+                    <div className="input-with-icon">
+                      <FiUser className="input-icon" />
+                      <input
+                        type="text"
+                        placeholder="John Doe"
+                        value={applyForm.fullName}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, fullName: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Email Address</label>
+                    <div className="input-with-icon">
+                      <FiMail className="input-icon" />
+                      <input
+                        type="email"
+                        placeholder="john@example.com"
+                        value={applyForm.email}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, email: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Phone Number</label>
+                    <div className="input-with-icon">
+                      <FiPhone className="input-icon" />
+                      <input
+                        type="tel"
+                        placeholder="+91 9876543210"
+                        value={applyForm.phone}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, phone: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-              <div className="file-input">
-                <label htmlFor="resume">Upload Resume (PDF, max 5MB)</label>
+              <div className="form-section-premium">
+                <h4><FiBook className="section-icon" /> Academic Details</h4>
+                <div className="form-grid-premium">
+                  <div className="form-group-premium">
+                    <label>Branch / Department</label>
+                    <div className="input-with-icon">
+                      <FiBook className="input-icon" />
+                      <input
+                        type="text"
+                        placeholder="Computer Science"
+                        value={applyForm.branch}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, branch: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Current CGPA</label>
+                    <div className="input-with-icon">
+                      <FiAward className="input-icon" />
+                      <input
+                        type="text"
+                        placeholder="8.5"
+                        value={applyForm.cgpa}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, cgpa: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Year of Passing</label>
+                    <div className="input-with-icon">
+                      <FiCalendar className="input-icon" />
+                      <input
+                        type="text"
+                        placeholder="2026"
+                        value={applyForm.yearOfPassing}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, yearOfPassing: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section-premium">
+                <h4><FiLinkedin className="section-icon" /> Professional Links</h4>
+                <div className="form-grid-premium">
+                  <div className="form-group-premium">
+                    <label>LinkedIn Profile</label>
+                    <div className="input-with-icon">
+                      <FiLinkedin className="input-icon" />
+                      <input
+                        type="url"
+                        placeholder="https://linkedin.com/in/..."
+                        value={applyForm.linkedinUrl}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, linkedinUrl: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group-premium">
+                    <label>GitHub Profile</label>
+                    <div className="input-with-icon">
+                      <FiGithub className="input-icon" />
+                      <input
+                        type="url"
+                        placeholder="https://github.com/..."
+                        value={applyForm.githubUrl}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, githubUrl: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group-premium">
+                    <label>Portfolio Website</label>
+                    <div className="input-with-icon">
+                      <FiGlobe className="input-icon" />
+                      <input
+                        type="url"
+                        placeholder="https://myportfolio.com"
+                        value={applyForm.portfolioUrl}
+                        onChange={(e) =>
+                          setApplyForm({ ...applyForm, portfolioUrl: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section-premium">
+                <h4><FiPlusCircle className="section-icon" /> Skills & Additional Info</h4>
+                <div className="form-group-premium">
+                  <label>Key Skills</label>
+                  <textarea
+                    placeholder="React, Node.js, Python, AWS (comma separated)"
+                    value={applyForm.skills}
+                    rows="2"
+                    onChange={(e) =>
+                      setApplyForm({ ...applyForm, skills: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group-premium" style={{ marginTop: '1rem' }}>
+                  <label>Additional Information</label>
+                  <textarea
+                    placeholder="Projects, notice period, or any other relevant details..."
+                    value={applyForm.additionalInfo}
+                    rows="2"
+                    onChange={(e) =>
+                      setApplyForm({ ...applyForm, additionalInfo: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="file-input-premium">
+                <label htmlFor="resume">
+                  <FiPlusCircle className="upload-icon" />
+                  <span>Upload Latest Resume (PDF, max 5MB)</span>
+                </label>
                 <input
                   id="resume"
                   type="file"
@@ -376,23 +570,32 @@ const StudentDashboard = () => {
                     setResumeFile(file);
                   }}
                 />
+                {resumeFile && (
+                  <div className="file-selected">
+                    <FiCheckCircle /> {resumeFile.name}
+                  </div>
+                )}
               </div>
 
-              <div className="apply-modal-actions">
+              <div className="apply-modal-actions-premium">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="btn-cancel-premium"
                   onClick={closeApplyForm}
                   disabled={applyLoading}
                 >
-                  Cancel
+                  <FiXCircle /> Cancel
                 </button>
                 <button
                   type="submit"
-                  className={applyLoading ? "btn-primary loading" : "btn-primary"}
+                  className={applyLoading ? "btn-submit-premium loading" : "btn-submit-premium"}
                   disabled={applyLoading}
                 >
-                  {applyLoading ? "Submitting..." : "Submit Application"}
+                  {applyLoading ? (
+                    <>Submitting...</>
+                  ) : (
+                    <><FiCheckCircle /> Submit Application</>
+                  )}
                 </button>
               </div>
             </form>
