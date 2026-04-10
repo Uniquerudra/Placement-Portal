@@ -3,18 +3,15 @@ const User = require("../models/User");
 const Notification = require("../models/Notification");
 const sendEmail = require("../utils/sendEmail");
 
-// Create new drive
 exports.addDrive = async (req, res) => {
   try {
-    // Attach logged-in user as creator
     const driveData = {
       ...req.body,
-      createdBy: req.user.id, // req.user comes from auth middleware
+      createdBy: req.user.id, 
     };
 
     const drive = await Drive.create(driveData);
 
-    // ✅ Create In-App Notification
     try {
       await Notification.create({
         title: "New Placement Drive",
@@ -25,12 +22,10 @@ exports.addDrive = async (req, res) => {
     } catch (notifErr) {
       console.error("Failed to create in-app notification:", notifErr);
     }
-
-    // ✅ Broadcast Notification to all students
+    
     try {
       const students = await User.find({ role: "student" }).select("email name");
 
-      // We'll send these in the background to not block the response
       const broadcastEmails = students.map(student => {
         return sendEmail({
           email: student.email,

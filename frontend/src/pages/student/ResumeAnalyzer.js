@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../api";
 import "../../css/ResumeAnalyzerModern.css";
+import GeminiLogo from "../../components/GeminiLogo";
 
 function ScoreBar({ label, value, max }) {
   const pct = max ? Math.round((value / max) * 100) : 0;
@@ -255,7 +256,10 @@ export default function ResumeAnalyzer() {
 
               {result.geminiAnalysis && (
                 <div className="ra-gemini-section">
-                  <div className="ra-gemini-badge">Gemini Intelligence</div>
+                  <div className="ra-gemini-badge">
+                    <GeminiLogo width={18} height={18} />
+                    Gemini Intelligence
+                  </div>
 
                   {result.geminiAnalysis.summary && (
                     <div className="ra-block">

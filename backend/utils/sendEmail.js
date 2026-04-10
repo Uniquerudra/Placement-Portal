@@ -90,7 +90,7 @@ const sendViaSMTP = async (options, LOG_ID) => {
         host,
         port,
         secure,
-        auth: { user, pass },
+        auth: { user, pass},
         tls: {
             rejectUnauthorized: false,
             minVersion: 'TLSv1.2'

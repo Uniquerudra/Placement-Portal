@@ -12,6 +12,27 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [applications, setApplications] = useState([]);
+  
+  const [noticeTitle, setNoticeTitle] = useState("");
+  const [noticeMessage, setNoticeMessage] = useState("");
+  const [noticing, setNoticing] = useState(false);
+
+  const handleAddNotice = async (e) => {
+    e.preventDefault();
+    try {
+      setNoticing(true);
+      await API.post("/admin/notice", { title: noticeTitle, message: noticeMessage }, {
+        headers: { Authorization: "Bearer " + localStorage.getItem("token") }
+      });
+      setNoticeTitle("");
+      setNoticeMessage("");
+      alert("Notice added successfully!");
+    } catch (err) {
+      alert("Failed to add notice: " + (err.response?.data?.message || err.message));
+    } finally {
+      setNoticing(false);
+    }
+  };
 
   const userName = localStorage.getItem("userName") || "Admin User";
   const userPicture = localStorage.getItem("userPicture");
@@ -152,15 +173,15 @@ function AdminDashboard() {
         </div>
 
         <div className="admin-insights-card secondary">
-          <h3>Next actions</h3>
+          <h3>Add General Notice</h3>
           <p className="admin-insights-caption">
-            Use this dashboard as a control center for upcoming drives.
+            Publish a notice to the public landing page.
           </p>
-          <ul>
-            <li>Monitor application volume and selection ratio.</li>
-            <li>Identify drives that need additional promotion.</li>
-            <li>Share key metrics with department stakeholders.</li>
-          </ul>
+          <form onSubmit={handleAddNotice} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+            <input type="text" placeholder="Notice Title" value={noticeTitle} onChange={e => setNoticeTitle(e.target.value)} required style={{ padding: '8px', borderRadius: '6px', border: '1px solid #334155', background: '#1e293b', color: 'white' }} />
+            <textarea placeholder="Write the notice message..." value={noticeMessage} onChange={e => setNoticeMessage(e.target.value)} required style={{ padding: '8px', borderRadius: '6px', border: '1px solid #334155', background: '#1e293b', color: 'white', resize: 'vertical' }} rows={3}></textarea>
+            <button type="submit" disabled={noticing} style={{ padding: '8px', background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>{noticing ? "Publishing..." : "Publish Notice"}</button>
+          </form>
         </div>
       </section>
 

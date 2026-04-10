@@ -577,6 +577,9 @@
   box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .ra-gemini-text {

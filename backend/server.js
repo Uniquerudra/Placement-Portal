@@ -6,10 +6,13 @@ console.log("ENVIRONMENT STATUS: Loaded config from", path.join(__dirname, ".env
 console.log("AVAILABLE SMTP USER:", process.env.SMTP_USER ? "YES" : "NO");
 
 const connectDB = require("./config/db");
+const Notification = require("./models/Notification");
+const { askGemini } = require("./utils/resumeAnalyzer");
 const authRoutes = require("./routes/authRoutes");
 const driveRoutes = require("./routes/driveRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const studentRoutes = require("./routes/studentRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -51,6 +54,30 @@ app.use("/api/auth", authRoutes);
 app.use("/api/drives", driveRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/student", studentRoutes);
+app.use("/api/admin", adminRoutes);
+
+app.get("/api/public/notices", async (req, res) => {
+  try {
+    const notices = await Notification.find({
+      $or: [{ recipient: { $exists: false } }, { recipient: null }],
+      type: "general"
+    }).sort({ createdAt: -1 }).limit(4);
+    res.json(notices);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+app.post("/api/public/chat", async (req, res) => {
+  try {
+    const { question } = req.body;
+    if (!question) return res.status(400).json({ message: "Question is required" });
+    const result = await askGemini({ question, resumeText: "General Portal User", jobDescription: "Career Guidance" });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to get AI response" });
+  }
+});
 
 app.get("/", (req, res) => res.send("API is running..."));
 

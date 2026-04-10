@@ -12,6 +12,7 @@ function TPODashboard() {
   const [drives, setDrives] = useState([]);
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const token = localStorage.getItem("token");
   const userName = localStorage.getItem("userName") || "TPO User";
@@ -78,196 +79,202 @@ function TPODashboard() {
     }
   };
 
+  // ✅ Filter drives and applications based on search query
+  const filteredDrives = drives.filter(drive => 
+    drive.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    drive.role?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredApplications = applications.filter(app => 
+    app.studentName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    app.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    app.driveName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    app.role?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="dashboard-container tpo-dashboard">
-      <div className="dashboard-header">
-        <div className="header-left">
-          <button className="btn-back" onClick={() => navigate("/")}>
-            ← Go Back
+    <div className="tpo-dashboard-wrapper">
+      {/* 🔹 TOP NAVBAR */}
+      <nav className="tpo-top-nav">
+        <div className="tpo-search-bar">
+          <span className="search-icon">🔍</span>
+          <input 
+            type="text" 
+            placeholder="Search students, companies, drives..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="tpo-nav-right">
+          <div className="tpo-notification">
+            🔔<span className="badge">3</span>
+          </div>
+          <div className="tpo-profile-avatar">
+            {userName ? (userName.substring(0, 2).toUpperCase()) : "TP"}
+          </div>
+        </div>
+      </nav>
+
+      {/* 🔹 WHITE HEADER AREA */}
+      <div className="tpo-header-white">
+        <div className="tpo-header-top-row">
+          <button className="tpo-btn-back" onClick={() => navigate("/")}>
+            <span className="arrow">←</span> Go Back
           </button>
-          <h2>TPO Dashboard</h2>
-          <p className="dashboard-subtitle">
+          <div className="tpo-header-actions">
+            <div className="tpo-admin-info">
+              <div className="admin-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <span className="admin-text">TPO Admin</span>
+            </div>
+            <button className="tpo-btn-add" onClick={() => navigate("/tpo/add-drive")}>
+              + ADD DRIVE
+            </button>
+            <button className="tpo-btn-logout" onClick={logout}>
+              Logout
+            </button>
+          </div>
+        </div>
+        <div className="tpo-header-titles">
+          <h1 className="tpo-main-title">TPO Dashboard</h1>
+          <p className="tpo-main-subtitle">
             Manage campus drives and track student applications in real time.
           </p>
         </div>
-        <div className="header-right">
-          <div className="user-profile">
-            <div className="profile-img-container">
-              {userPicture ? (
-                <img src={userPicture} alt={userName} className="profile-pic" />
-              ) : (
-                <div className="profile-placeholder">{userName.charAt(0)}</div>
-              )}
-            </div>
-            <div className="user-info">
-              <span className="user-name">{userName}</span>
-              <span className="user-role">TPO Admin</span>
-            </div>
-          </div>
-          <div className="actions">
-            <button className="btn-add" onClick={() => navigate("/tpo/add-drive")}>+ Add Drive</button>
-            <button className="btn-logout" onClick={logout}>Logout</button>
-          </div>
+      </div>
+
+      {/* 🔹 STATS CARDS */}
+      <div className="tpo-stats-row">
+        <div className="tpo-stat-card">
+          <p className="stat-label">TOTAL APPLICATIONS</p>
+          <h2 className="stat-value">{stats.totalApplications || 0}</h2>
+          <p className="stat-desc">All student submissions across drives</p>
+        </div>
+        <div className="tpo-stat-card">
+          <p className="stat-label">SHORTLISTED</p>
+          <h2 className="stat-value">{stats.totalShortlisted || 0}</h2>
+          <p className="stat-desc">Students progressed to shortlist</p>
+        </div>
+        <div className="tpo-stat-card">
+          <p className="stat-label">SELECTED</p>
+          <h2 className="stat-value">{stats.totalSelected || 0}</h2>
+          <p className="stat-desc">Final selections recorded</p>
         </div>
       </div>
 
-      <div className="dashboard-cards">
-        <div className="card admin-card">
-          <h3>Total Applications</h3>
-          <h2>{stats.totalApplications || 0}</h2>
-          <p>All student submissions across drives.</p>
-        </div>
-        <div className="card admin-card">
-          <h3>Shortlisted</h3>
-          <h2>{stats.totalShortlisted || 0}</h2>
-          <p>Students progressed to shortlist.</p>
-        </div>
-        <div className="card admin-card">
-          <h3>Selected</h3>
-          <h2>{stats.totalSelected || 0}</h2>
-          <p>Final selections recorded.</p>
-        </div>
+      {/* 🔹 ACTIVE DRIVES */}
+      <div className="tpo-section-header">
+        <div className="tpo-section-title">Active Drives</div>
       </div>
-
-      {/* 🔹 DRIVES SECTION */}
-      <h3 className="section-title-dark">All Drives</h3>
-      <div className="drives-grid">
-        {drives.map((drive) => (
-          <div className="drive-card-dark" key={drive._id}>
-            <div className="drive-card-image">
-              <div className="drive-card-gradient"></div>
-              <span className="drive-card-badge">{drive.package} LPA</span>
+      <div className="tpo-drives-grid">
+        {filteredDrives.map((drive) => (
+          <div className="tpo-drive-card" key={drive._id}>
+            <div className="drive-top-half">
+              <span className="drive-salary-badge">{drive.package} LPA</span>
             </div>
-            <div className="drive-card-content">
-              <h3>{drive.company}</h3>
-              <p className="drive-role">{drive.role}</p>
-              <p className="drive-location">📍 {drive.location}</p>
-              <div className="drive-tags">
-                {drive.minCGPA > 0 && (
-                  <span className="tag tag-criteria">📊 Min CGPA: {drive.minCGPA}</span>
-                )}
-                {drive.allowedBranches && drive.allowedBranches.length > 0 && (
-                  <span className="tag tag-branches">🎓 {drive.allowedBranches.join(", ")}</span>
-                )}
-                {drive.eligibilityCriteria && (
-                  <span className="tag">{drive.eligibilityCriteria}</span>
-                )}
-                {drive.rounds && <span className="tag">{drive.rounds}</span>}
+            <div className="drive-bottom-half">
+              <h3 className="company-name">{drive.company}</h3>
+              <p className="company-role">{drive.role}</p>
+              <div className="company-location">
+                <span className="loc-pin">📍</span> {drive.location || "Location TBD"}
+              </div>
+              
+              <div className="drive-pills">
+                {drive.minCGPA > 0 && <span className="pill">MIN CGPA: {drive.minCGPA}</span>}
                 {drive.deadline && (
-                  <span className="tag tag-deadline">⏰ {new Date(drive.deadline).toLocaleDateString()}</span>
+                  <span className="pill">
+                    ENDS: {new Date(drive.deadline).toLocaleDateString()}
+                  </span>
                 )}
+                {drive.skills && drive.skills.includes("DSA") && <span className="pill">DSA</span>}
+              </div>
+
+              <div className="drive-footer-btn">
+                <span>View Details</span>
+                <span>→</span>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* 🔹 APPLICATIONS SECTION */}
-      <h3 className="table-section-title">Student Applications</h3>
-      <div className="table-container">
-        <table className="dashboard-table">
+      {/* 🔹 APPLICATIONS TABLE */}
+      <div className="tpo-section-header">
+        <div className="tpo-section-title">Student Applications</div>
+      </div>
+      <div className="tpo-table-wrapper">
+        <table className="tpo-table">
           <thead>
             <tr>
-              <th>Student</th>
-              <th>Email</th>
-              <th>Company</th>
-              <th>Role</th>
+              <th>STUDENT</th>
+              <th>EMAIL</th>
+              <th>COMPANY</th>
+              <th>ROLE</th>
               <th>CGPA</th>
               <th>YOP</th>
-              <th>Skills</th>
-              <th>Status</th>
-              <th>Applied</th>
-              <th>Resume</th>
-              <th>Email</th>
-              <th>Update</th>
+              <th>STATUS</th>
+              <th>APPLIED</th>
+              <th>RESUME</th>
+              <th>ACTIONS</th>
+              <th>UPDATE STATUS</th>
             </tr>
           </thead>
           <tbody>
-            {applications.map((app) => (
+            {filteredApplications.map((app) => (
               <tr key={app._id}>
-                <td>{app.studentName}</td>
-                <td>{app.email}</td>
-                <td>{app.driveName}</td>
-                <td>{app.role}</td>
+                <td className="st-name text-bold">{app.studentName}</td>
+                <td className="st-email">{app.email}</td>
+                <td className="st-company">{app.driveName}</td>
+                <td className="st-role">{app.role}</td>
                 <td>{app.cgpa || "—"}</td>
                 <td>{app.yearOfPassing || "—"}</td>
-                <td>{app.skills || "—"}</td>
                 <td>
-                  <span className={`status-badge status-${app.status}`}>
-                    {app.status}
+                  <span className={`static-status-badge status-${app.status.toLowerCase()}`}>
+                    {app.status.toUpperCase()}
                   </span>
                 </td>
-                <td>
-                  {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : "—"}
-                </td>
+                <td>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : "—"}</td>
                 <td>
                   {app.resumeUrl ? (
                     <a
-                      href={
-                        app.resumeUrl.startsWith("http")
-                          ? app.resumeUrl
-                          : `${BACKEND_ORIGIN.replace(/\/$/, "")}/${app.resumeUrl.replace(/\\/g, '/').replace(/^\//, '')}`
-                      }
+                      className="st-resume"
+                      href={app.resumeUrl}
                       target="_blank"
                       rel="noreferrer"
-                      style={{ color: "#2563eb", fontWeight: 600 }}
                     >
-                      View
+                      <span className="eye-icon">👁</span> View
                     </a>
-                  ) : (
-                    "—"
-                  )}
+                  ) : "—"}
                 </td>
                 <td>
-                  {app.email ? (
-                    <button
-                      className="btn-secondary"
-                      type="button"
-                      onClick={() => {
+                  <button 
+                    className="st-action-mail"
+                    onClick={() => {
                         const subject = `Next Round Details - ${app.driveName} (${app.role})`;
-
-                        const body = `Dear ${app.studentName},
-
-You have been shortlisted for the next round for ${app.driveName} - ${app.role}.
-
-Please find the details below:
-- Date & Time:
-- Mode / Location:
-- Things to carry:
-
-Regards,
-TPO Cell`;
-
-                        // ✅ Gmail (Chrome) compose link
-                        const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
-                          app.email
-                        )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-                        const newTab = window.open(gmailURL, "_blank");
-
-                        // 🔁 Fallback → default mail client (mailto)
-                        if (!newTab) {
-                          window.location.href = `mailto:${app.email}?subject=${encodeURIComponent(
-                            subject
-                          )}&body=${encodeURIComponent(body)}`;
-                        }
-                      }}
-                    >
-                      Email
-                    </button>
-                  ) : (
-                    "—"
-                  )}
+                        const body = `Dear ${app.studentName},/n/nYou have been shortlisted...`;
+                        window.open(`https://mail.google.com/mail/?view=cm&to=${app.email}&su=${subject}&body=${body}`, "_blank");
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:'4px', verticalAlign:'middle'}}>
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg> Email
+                  </button>
                 </td>
                 <td>
-                  <select
-                    value={app.status}
+                  <select 
+                    className="st-action-select-bare"
+                    value={app.status.toLowerCase()}
                     onChange={(e) => updateStatus(app._id, e.target.value)}
                   >
-                    <option value="applied">Applied</option>
-                    <option value="shortlisted">Shortlisted</option>
-                    <option value="selected">Selected</option>
-                    <option value="rejected">Rejected</option>
+                   <option value="applied">Applied</option>
+                   <option value="shortlisted">Shortlisted</option>
+                   <option value="selected">Selected</option>
+                   <option value="rejected">Rejected</option>
                   </select>
                 </td>
               </tr>

@@ -1,11 +1,13 @@
 // frontend/src/pages/LandingPage.js
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import API from "../api";
 import "../css/LandingPage.css";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [notices, setNotices] = useState([]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -13,6 +15,18 @@ const LandingPage = () => {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const response = await API.get("/public/notices");
+        setNotices(response.data);
+      } catch (error) {
+        console.error("Failed to fetch notices:", error);
+      }
+    };
+    fetchNotices();
   }, []);
 
   const scrollToSection = (id) => {
@@ -27,7 +41,7 @@ const LandingPage = () => {
       {/* NAVBAR */}
       <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
         <div className="navbar-logo" onClick={() => navigate("/")} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <img src="/logo.png" alt="TPO Portal" className="logo-icon-img" />
+          <img src="/bbbbb.png" alt="TPO Portal" className="logo-icon-img" />
           <h2>TPO Portal</h2>
         </div>
 
@@ -166,34 +180,21 @@ const LandingPage = () => {
           <p>Stay updated with the latest drives and workshops.</p>
         </div>
         <div className="notices-list">
-          <div className="notice-item">
-            <div className="notice-icon">🚀</div>
-            <div className="notice-content">
-              <h3>TCS Ninja Drive 2026</h3>
-              <p>Registration ends on 15 Feb. Eligible batches: 2026 CS/IT.</p>
+          {notices && notices.length > 0 ? (
+            notices.map((notice) => (
+              <div className="notice-item" key={notice._id}>
+                <div className="notice-icon">📢</div>
+                <div className="notice-content">
+                  <h3>{notice.title}</h3>
+                  <p>{notice.message}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="notice-item" style={{ gridColumn: "1 / -1", textAlign: "center", justifyContent: "center" }}>
+              <p>No notices available right now.</p>
             </div>
-          </div>
-          <div className="notice-item">
-            <div className="notice-icon">🔥</div>
-            <div className="notice-content">
-              <h3>Infosys Specialist Hiring</h3>
-              <p>Apply for the Specialist Programmer role. Multiple openings.</p>
-            </div>
-          </div>
-          <div className="notice-item">
-            <div className="notice-icon">🎯</div>
-            <div className="notice-content">
-              <h3>Resume & Interview Workshop</h3>
-              <p>Join us on 18 Feb for a session by industry experts.</p>
-            </div>
-          </div>
-          <div className="notice-item">
-            <div className="notice-icon">💼</div>
-            <div className="notice-content">
-              <h3>Amazon Internship 2026</h3>
-              <p>SDE Internship opportunities now open. Apply through portal.</p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -201,7 +202,7 @@ const LandingPage = () => {
         <div className="footer-content">
           <div className="footer-logo">
             <div className="footer-logo-brand" style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-              <img src="/logo.png" alt="TPO Portal" className="logo-icon-img footer-logo-img" />
+              <img src="/bbbbb.png" alt="TPO Portal" className="logo-icon-img footer-logo-img" />
               <h3>TPO Portal</h3>
             </div>
             <p>Empowering the next generation of professionals.</p>
@@ -216,7 +217,7 @@ const LandingPage = () => {
           <div className="footer-contact">
             <h4>Contact Us</h4>
             <p>Email: tpo@akgec.ac.in</p>
-            <p>Phone: +91 1234567890</p>
+            <p>Phone: +919696934735</p>
           </div>
         </div>
         <div className="footer-bottom">

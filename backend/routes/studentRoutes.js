@@ -27,7 +27,6 @@ const {
 } = require("../utils/resumeAnalyzer");
 
 const router = express.Router();
-// ... (rest of the file handles)
 
 router.post("/resume/ask", auth, role(["student"]), async (req, res) => {
   try {

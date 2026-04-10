@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './GeminiChatbot.css';
+import GeminiLogo from './GeminiLogo';
+import API from '../api';
 
 const GeminiChatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -20,25 +22,11 @@ const GeminiChatbot = () => {
         setLoading(true);
 
         try {
-            // Mock or actual API call for general help
-            // Since we don't have a specific "general help" endpoint yet, 
-            // we can use a simpler version or reuse the resume one with dummy data if needed.
-            // For now, let's just make it feel interactive.
-
-            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/student/resume/ask`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    question: userMsg,
-                    resumeText: "General Portal User",
-                    jobDescription: "Career Guidance"
-                })
+            const response = await API.post('/public/chat', {
+                question: userMsg
             });
 
-            const data = await response.json();
+            const data = response.data;
             setMessages(prev => [...prev, { role: 'ai', text: data.answer || "I'm sorry, I couldn't process that. Try asking about your resume or interview tips!" }]);
         } catch (err) {
             setMessages(prev => [...prev, { role: 'ai', text: "Error connecting to Gemini. Please try again later." }]);
@@ -51,7 +39,7 @@ const GeminiChatbot = () => {
         <div className={`gemini-chatbot-container ${isOpen ? 'open' : ''}`}>
             {!isOpen && (
                 <button className="gemini-chat-toggle" onClick={toggleChat}>
-                    <div className="gemini-logo-icon">✨</div>
+                    <div className="gemini-logo-icon"><GeminiLogo width={16} height={16} /></div>
                     <span className="toggle-text">Ask Gemini</span>
                 </button>
             )}
@@ -60,7 +48,7 @@ const GeminiChatbot = () => {
                 <div className="gemini-chat-window">
                     <div className="gemini-chat-header">
                         <div className="header-info">
-                            <span className="gemini-sparkle">✨</span>
+                            <span className="gemini-sparkle"><GeminiLogo width={20} height={20} /></span>
                             <h3>Gemini AI</h3>
                         </div>
                         <button className="close-chat" onClick={toggleChat}>×</button>

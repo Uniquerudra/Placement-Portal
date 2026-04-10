@@ -91,8 +91,8 @@ const AddDrive = () => {
       <div className="add-drive-card">
         <div className="add-drive-header">
           <div className="add-drive-icon">🚀</div>
-          <h2>Create New Drive</h2>
-          <p>Fill in the details to create a new placement drive</p>
+          <h2>Create New <span>Drive</span></h2>
+          <p>Configure placement details for upcoming recruitment</p>
         </div>
 
         <form className="add-drive-form" onSubmit={handleSubmit}>

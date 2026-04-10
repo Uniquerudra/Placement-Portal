@@ -18,6 +18,7 @@ const StudentDashboard = () => {
   const [myApplications, setMyApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDrive, setSelectedDrive] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [applyForm, setApplyForm] = useState({
     fullName: "",
     email: "",
@@ -167,6 +168,17 @@ const StudentDashboard = () => {
     navigate("/login");
   };
 
+  const filteredDrives = drives.filter(drive => 
+    drive.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    drive.role?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredApplications = myApplications.filter(app => 
+    app.drive?.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    app.drive?.role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    app.status?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="dashboard-container student-dashboard">
       <div className="dashboard-header">
@@ -184,6 +196,15 @@ const StudentDashboard = () => {
           </p>
         </div>
         <div className="header-right">
+          <div className="student-search-bar">
+            <span className="search-icon">🔍</span>
+            <input 
+              type="text" 
+              placeholder="Search companies, roles..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
           <div className="user-profile">
             <div className="profile-img-container">
               {userPicture ? (
@@ -253,7 +274,7 @@ const StudentDashboard = () => {
         <div className="loading-text">Loading...</div>
       ) : (
         <div className="drives-grid">
-          {drives.map((drive) => {
+          {filteredDrives.map((drive) => {
             const isApplied = appliedDrives.includes(drive._id);
 
             // Eligibility logic
@@ -337,8 +358,8 @@ const StudentDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {myApplications.length ? (
-              myApplications.slice(0, 8).map((app) => (
+            {filteredApplications.length ? (
+              filteredApplications.slice(0, 8).map((app) => (
                 <tr key={app._id}>
                   <td>{app.drive?.company || "—"}</td>
                   <td>{app.drive?.role || "—"}</td>
