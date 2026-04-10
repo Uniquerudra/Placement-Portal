@@ -110,7 +110,7 @@ const Profile = () => {
                 <div className="header-left">
                     <div className="profile-header-top" style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "15px", justifyContent: "space-between" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                            <img src="/logo.png" alt="Logo" className="logo-icon-img" onClick={() => navigate("/")} />
+                            <img src="/bbbbb.png" alt="Logo" className="logo-icon-img" onClick={() => navigate("/")} />
                             <h2 style={{ fontSize: "1.5rem", margin: 0, fontWeight: "700" }}>TPO Portal</h2>
                         </div>
                         <button className="btn-back" onClick={() => navigate("/student")}>

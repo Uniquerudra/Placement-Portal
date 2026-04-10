@@ -184,7 +184,7 @@ const StudentDashboard = () => {
       <div className="dashboard-header">
         <div className="header-left">
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "15px" }}>
-            <img src="/logo.png" alt="Logo" style={{ height: "48px", cursor: "pointer" }} onClick={() => navigate("/")} />
+            <img src="/bbbbb.png" alt="Logo" style={{ height: "48px", cursor: "pointer" }} onClick={() => navigate("/")} />
             <h2 style={{ fontSize: "1.5rem", margin: 0, fontWeight: "700" }}>TPO Portal</h2>
           </div>
           <button className="btn-back" onClick={() => navigate("/")}>

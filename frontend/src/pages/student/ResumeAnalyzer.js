@@ -107,7 +107,7 @@ export default function ResumeAnalyzer() {
     <div className="dashboard-container student-dashboard">
       <div className="dashboard-header">
         <div className="ra-header-left">
-          <img src="/logo.png" alt="Logo" className="logo-icon-img" onClick={() => navigate("/")} />
+          <img src="/bbbbb.png" alt="Logo" className="logo-icon-img" onClick={() => navigate("/")} />
           <div>
             <h2 style={{ fontSize: "2rem", fontWeight: "700" }}>TPO Portal</h2>
             <p className="dashboard-subtitle">
