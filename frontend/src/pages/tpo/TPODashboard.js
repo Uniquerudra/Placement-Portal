@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import API from "../../api";
 import "../../css/TPODashboardDark.css";
 
-const API_URL_FALLBACK = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : "http://localhost:5000";
 
 function TPODashboard() {
   const navigate = useNavigate();
