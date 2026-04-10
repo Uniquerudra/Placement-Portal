@@ -37,7 +37,7 @@ function Register() {
       </button>
       <form className="auth-box" onSubmit={handleRegister}>
         <div className="auth-logo" onClick={() => navigate("/")} style={{ cursor: "pointer", display: "flex", justifyContent: "center", marginBottom: "40px" }}>
-          <img src="/bbbbb.png" alt="TPO Portal" className="logo-icon-img auth-standalone-logo" />
+          <img src={process.env.PUBLIC_URL + "/bbbbb.png"} alt="TPO Portal" className="logo-icon-img auth-standalone-logo" />
         </div>
         {error ? (
           <div className="auth-error" role="alert" aria-live="polite">

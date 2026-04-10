@@ -41,7 +41,7 @@ const LandingPage = () => {
       {/* NAVBAR */}
       <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
         <div className="navbar-logo" onClick={() => navigate("/")} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <img src="/bbbbb.png" alt="TPO Portal" className="logo-icon-img" />
+          <img src={process.env.PUBLIC_URL + "/bbbbb.png"} alt="TPO Portal" className="logo-icon-img" />
           <h2>TPO Portal</h2>
         </div>
 
@@ -202,7 +202,7 @@ const LandingPage = () => {
         <div className="footer-content">
           <div className="footer-logo">
             <div className="footer-logo-brand" style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-              <img src="/bbbbb.png" alt="TPO Portal" className="logo-icon-img footer-logo-img" />
+              <img src={process.env.PUBLIC_URL + "/bbbbb.png"} alt="TPO Portal" className="logo-icon-img footer-logo-img" />
               <h3>TPO Portal</h3>
             </div>
             <p>Empowering the next generation of professionals.</p>

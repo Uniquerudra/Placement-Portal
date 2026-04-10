@@ -116,7 +116,7 @@ function Login() {
       </button>
       <form className="auth-box" onSubmit={handleLogin}>
         <div className="auth-logo" onClick={() => navigate("/")} style={{ cursor: "pointer", display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-          <img src="/bbbbb.png" alt="TPO Portal" className="logo-icon-img auth-standalone-logo" />
+          <img src={process.env.PUBLIC_URL + "/bbbbb.png"} alt="TPO Portal" className="logo-icon-img auth-standalone-logo" />
         </div>
         <h2 style={{ textAlign: "center", marginBottom: "5px", color: "var(--text-primary)" }}>Welcome Back</h2>
         <p style={{ textAlign: "center", marginBottom: "25px", color: "#64748b", fontSize: "0.95rem" }}>{getRoleSubtitle()}</p>
