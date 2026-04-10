@@ -1,6 +1,5 @@
 <div align="center">
   <img src="https://img.shields.io/badge/MERN_Stack-white?logo=react&logoColor=61DAFB" alt="MERN" />
-  <img src="https://img.shields.io/badge/Google_Gemini_AI-white?logo=google&logoColor=4285F4" alt="Gemini" />
   <img src="https://img.shields.io/badge/UI_UX-Figma_Inspired-white?logo=figma&logoColor=F24E1E" alt="UI" />
 </div>
 
